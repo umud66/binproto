@@ -8,7 +8,12 @@ import (
 	"umud.online/bin/utils"
 )
 
-func doGenerateCodes(contArr []string) []core.CodeClass {
+type CodeStruct struct {
+	Codes []core.CodeClass
+	Enums []core.CodeEnum
+}
+
+func doGenerateCodes(contArr []string) CodeStruct {
 	codeArr := make([]core.CodeClass, 0)
 	codeEnum := make([]core.CodeEnum, 0)
 	tmpCode := &core.CodeClass{}
@@ -44,15 +49,19 @@ func doGenerateCodes(contArr []string) []core.CodeClass {
 		if findEnd {
 			if findEnum {
 				// tmpEnum
+				tmpEnum.WriteEnum(utils.TrimStr(v))
 			} else {
-				tmpCode.PutField(v)
+				tmpCode.PutField(utils.TrimStr(v))
 			}
 		}
 	}
-	return codeArr
+	return CodeStruct{
+		Codes: codeArr,
+		Enums: codeEnum,
+	}
 }
 
-func ReadFile(filePath string) []core.CodeClass {
+func ReadFile(filePath string) CodeStruct {
 	file, err := os.ReadFile(filePath)
 	if err != nil {
 		panic(err)

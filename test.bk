@@ -1,3 +1,7 @@
+enum:cs_proto{
+    login=1#登录
+    logout#退出
+}
 struct:cs_login{
     int:uid
 }

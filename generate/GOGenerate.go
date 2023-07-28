@@ -1,6 +1,7 @@
 package generate
 
 import (
+	"strconv"
 	"strings"
 
 	"umud.online/bin/core"
@@ -145,6 +146,32 @@ func GenerateGOFile(codes []core.CodeClass) string {
 		sb.WriteString("}\n")
 		sb.WriteString(readfuncStr.String())
 		sb.WriteString(writeFuncStr.String())
+	}
+	return sb.String()
+}
+func GenerateGOEnumFile(enums []core.CodeEnum) string {
+	sb := &strings.Builder{}
+	for _, e := range enums {
+		lastValue := 0
+		typeName := strings.Title(e.Name)
+		sb.WriteString("const (\n")
+		for i, basename := range e.Names {
+			names := strings.Split(basename, "#")
+			sb.WriteString("\t" + typeName + "_" + strings.Title(names[0]) + " = ")
+			tmpValue := e.Values[i]
+			if tmpValue == -1 {
+				lastValue += 1
+				sb.WriteString(strconv.Itoa(lastValue))
+			} else {
+				sb.WriteString(strconv.Itoa(tmpValue))
+				lastValue = tmpValue
+			}
+			if len(names) == 2 {
+				sb.WriteString(" //" + names[1])
+			}
+			sb.WriteString("\n")
+		}
+		sb.WriteString(")\n")
 	}
 	return sb.String()
 }

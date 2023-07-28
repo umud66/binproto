@@ -1,6 +1,7 @@
 package generate
 
 import (
+	"strconv"
 	"strings"
 
 	"umud.online/bin/core"
@@ -172,6 +173,33 @@ func GenerateCSFile(codes []core.CodeClass) string {
 		// sb.WriteString("partial class BinProto {\n")
 		sb.WriteString(funcStr.String())
 		sb.WriteString(writeFuncStr.String())
+		sb.WriteString("}\n")
+	}
+	return sb.String()
+}
+
+func GenerateCSEnumFile(enums []core.CodeEnum) string {
+	sb := &strings.Builder{}
+	for _, e := range enums {
+		lastValue := 0
+		sb.WriteString("public enum " + e.Name + " {\n")
+		for i, basename := range e.Names {
+			names := strings.Split(basename, "#")
+			sb.WriteString("\t" + names[0] + " = ")
+			tmpValue := e.Values[i]
+			if tmpValue == -1 {
+				lastValue += 1
+				sb.WriteString(strconv.Itoa(lastValue))
+			} else {
+				sb.WriteString(strconv.Itoa(tmpValue))
+				lastValue = tmpValue
+			}
+			sb.WriteString(",")
+			if len(names) == 2 {
+				sb.WriteString(" //" + names[1])
+			}
+			sb.WriteString("\n")
+		}
 		sb.WriteString("}\n")
 	}
 	return sb.String()

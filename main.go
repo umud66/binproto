@@ -8,6 +8,6 @@ import (
 
 func main() {
 	codes := ReadFile("./test.bk")
-	// os.WriteFile("./out.go", []byte(generate.GenerateGOFile(codes)), os.ModePerm)
-	os.WriteFile("./out.cs", []byte(generate.GenerateCSFile(codes)), os.ModePerm)
+	os.WriteFile("./out.go", []byte(generate.GenerateGOEnumFile(codes.Enums)+generate.GenerateGOFile(codes.Codes)), os.ModePerm)
+	os.WriteFile("./out.cs", []byte(generate.GenerateCSEnumFile(codes.Enums)+generate.GenerateCSFile(codes.Codes)), os.ModePerm)
 }
