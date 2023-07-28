@@ -1,0 +1,29 @@
+struct:cs_login{
+    int:uid
+}
+
+struct:test{
+    int:age#年龄
+    int64:age1#年龄
+    int16:age2#年龄
+    int64:age3#年龄
+    string:name#名字
+    string[]:name3#名字
+    int64[]:sizes#size
+    uint64[]:sizes1#size
+    uint[]:sizes2#size
+    int[]:sizes3#size
+    int16[]:sizes4#size
+    uint16[]:sizes5#size
+    byte:t1
+    byte[]:t3
+    bool:b1
+    bool[]:b2
+}
+
+struct:test1{
+    test:ages
+}
+struct:test2{
+    test1[]:ages
+}
