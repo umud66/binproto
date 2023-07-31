@@ -169,8 +169,6 @@ func GenerateCSFile(codes []core.CodeClass) string {
 		writeFuncStr.WriteString("\t\treturn __w__.GetBytes();\n\t}\n")
 		funcStr.WriteString("\t\treturn data;\n")
 		funcStr.WriteString("\t}\n")
-		// sb.WriteString("}\n")
-		// sb.WriteString("partial class BinProto {\n")
 		sb.WriteString(funcStr.String())
 		sb.WriteString(writeFuncStr.String())
 		sb.WriteString("}\n")

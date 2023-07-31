@@ -8,11 +8,12 @@ import (
 	"path"
 	"strings"
 
+	"umud.online/bin/core"
 	"umud.online/bin/generate"
 )
 
 func doCreateFile(inputFile string, outDir string, outIsDir bool, isDir bool, filetype string, filename string) {
-	codes := ReadFile(inputFile)
+	codes := core.ReadFile(inputFile)
 	outFile := outDir
 	if outIsDir {
 		outFile = path.Join(outFile, strings.Replace(filename, "bk", filetype, 1))
@@ -47,7 +48,7 @@ func main() {
 	flag.StringVar(&filetype, "t", "", "Type: cs go")
 	flag.Parse()
 	idStat, _ := os.Stat(inputDir)
-	if !strings.HasSuffix(inputDir, "bk") {
+	if path.Ext(inputDir) != "bk" {
 		if idStat == nil || !idStat.IsDir() {
 			fmt.Println("Input Dir Is NotExist")
 			return
@@ -58,20 +59,13 @@ func main() {
 			return
 		}
 	}
-	outIsDir := false
+	outIsDir := path.Ext(outDir) == ""
 	odStat, _ := os.Stat(outDir)
-	if strings.Index(path.Base(outDir), ".") < 0 {
-		if odStat == nil {
-			fmt.Println("Out Dir Is NotExist")
-			return
-		} else {
-			outIsDir = odStat.IsDir()
-			if !outIsDir {
-				fmt.Println("Out Dir Is NotExist")
-				return
-			}
-		}
+	if odStat == nil && outIsDir {
+		fmt.Println("Out Dir Is NotExist")
+		return
 	}
+
 	if !outIsDir && idStat.IsDir() {
 		fmt.Println("out must be dir")
 		return

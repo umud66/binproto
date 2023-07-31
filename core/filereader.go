@@ -1,29 +1,28 @@
-package main
+package core
 
 import (
 	"os"
 	"strings"
 
-	"umud.online/bin/core"
 	"umud.online/bin/utils"
 )
 
 type CodeStruct struct {
-	Codes []core.CodeClass
-	Enums []core.CodeEnum
+	Codes []CodeClass
+	Enums []CodeEnum
 }
 
 func doGenerateCodes(contArr []string) CodeStruct {
-	codeArr := make([]core.CodeClass, 0)
-	codeEnum := make([]core.CodeEnum, 0)
-	tmpCode := &core.CodeClass{}
-	tmpEnum := &core.CodeEnum{}
+	codeArr := make([]CodeClass, 0)
+	codeEnum := make([]CodeEnum, 0)
+	tmpCode := &CodeClass{}
+	tmpEnum := &CodeEnum{}
 	findEnd := false
 	findEnum := false
 	for _, v := range contArr {
 		if strings.HasPrefix(v, "struct") {
 			findEnd = true
-			tmpCode = &core.CodeClass{
+			tmpCode = &CodeClass{
 				Name: strings.Replace(utils.TrimStr(strings.Split(v, ":")[1]), "{", "", -1),
 			}
 			continue
@@ -31,7 +30,7 @@ func doGenerateCodes(contArr []string) CodeStruct {
 		if strings.HasPrefix(v, "enum") {
 			findEnd = true
 			findEnum = true
-			tmpEnum = &core.CodeEnum{
+			tmpEnum = &CodeEnum{
 				Name: strings.Replace(utils.TrimStr(strings.Split(v, ":")[1]), "{", "", -1),
 			}
 			continue

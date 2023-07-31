@@ -17,5 +17,7 @@ func (this *CodeClass) PutField(field string) {
 	this.Names = append(this.Names, utils.TrimStr(tmp[1]))
 	this.Types = append(this.Types, utils.TrimStr(tmp[0]))
 }
-func (this *CodeClass) PutEnum(field string) {
+func (this *CodeClass) Put(field string, fieldType string) {
+	this.Names = append(this.Names, field)
+	this.Types = append(this.Types, fieldType)
 }
