@@ -1,25 +1,26 @@
 enum:cs_proto{
-    login=1#登录
-    logout#退出
+    login=1#login
+    logout#logout
 }
-struct:cs_login{
+struct:s_push_login{
     int:uid
 }
 
 struct:test{
-    int:age#年龄
-    int64:age1#年龄
-    int16:age2#年龄
-    int64:age3#年龄
+    int8:age6#int8 sbyte
+    int:age#年龄 int32
+    uint:age4#uint32
+    int64:age1#年龄 int64 long
+    int16:age2#年龄 int16 short
     string:name#名字
     string[]:name3#名字
     int64[]:sizes#size
-    uint64[]:sizes1#size
+    uint64[]:sizes1#size uint64 ulong
     uint[]:sizes2#size
     int[]:sizes3#size
     int16[]:sizes4#size
-    uint16[]:sizes5#size
-    byte:t1
+    uint16[]:sizes5#size uint16 ushort
+    byte:t1#uint8 byte
     byte[]:t3
     bool:b1
     bool[]:b2
