@@ -15,6 +15,8 @@ func createGORead(fieldName string, fieldType string) string {
 		return r + "reader.ReadUInt32()\n"
 	} else if fieldType == "byte" || fieldType == "uin8" {
 		return r + "reader.ReadUInt8()\n"
+	} else if fieldType == "in8" {
+		return r + "reader.ReadInt8()\n"
 	} else if fieldType == "int16" {
 		return r + "reader.ReadInt16()\n"
 	} else if fieldType == "bool" {
@@ -33,6 +35,8 @@ func createGORead(fieldName string, fieldType string) string {
 		return r + "reader.ReadStringArr()\n"
 	} else if fieldType == "byte[]" || fieldType == "uint8[]" {
 		return r + "reader.ReadUInt8Arr()\n"
+	} else if fieldType == "int8[]" {
+		return r + "reader.ReadInt8Arr()\n"
 	} else if fieldType == "int[]" {
 		return r + "reader.ReadInt32Arr()\n"
 	} else if fieldType == "bool[]" {
@@ -63,6 +67,8 @@ func createGOWrite(fieldName string, fieldType string) string {
 		return "writer.WriteUInt32(this." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "byte" || fieldType == "uint8" {
 		return "writer.WriteUInt8(this." + strings.Title(fieldName) + ")\n"
+	} else if fieldType == "int8" {
+		return "writer.WriteInt8(this." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "int64" {
 		return "writer.WriteInt64(this." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "uint64" {
@@ -81,6 +87,8 @@ func createGOWrite(fieldName string, fieldType string) string {
 		return "writer.WriteUInt32Arr(this." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "byte[]" || fieldType == "uin8[]" {
 		return "writer.WriteUInt8Arr(this." + strings.Title(fieldName) + ")\n"
+	} else if fieldType == "int8[]" {
+		return "writer.WriteInt8Arr(this." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "int16[]" {
 		return "writer.WriteInt16Arr(this." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "uint16[]" {

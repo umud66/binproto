@@ -52,7 +52,13 @@ func (this *ByteBufferWriter) WriteBool(v bool) {
 		this.WriteUInt8(0)
 	}
 }
-
+func (this *ByteBufferWriter) WriteInt8Arr(v []int8) {
+	len := len(v)
+	this.WriteInt32(len)
+	for _, _v := range v {
+		this.WriteUInt8(byte(_v))
+	}
+}
 func (this *ByteBufferWriter) WriteUInt8Arr(v []byte) {
 	len := len(v)
 	this.WriteInt32(len)
