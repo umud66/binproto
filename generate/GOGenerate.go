@@ -113,6 +113,7 @@ func createGOWrite(fieldName string, fieldType string) string {
 func GenerateGOFile(codes []core.CodeClass) string {
 	sb := &strings.Builder{}
 	for _, v := range codes {
+		v.Name = strings.Title(v.Name)
 		sb.WriteString("type " + v.Name + " struct{")
 		sb.WriteString("\n")
 
