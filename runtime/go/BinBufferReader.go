@@ -1,8 +1,9 @@
 package buffertool
 
 type ByteBufferReader struct {
-	B     []byte
-	point int
+	B      []byte
+	point  int
+	offset byte
 }
 
 func (this *ByteBufferReader) ReadInt8() int8 {
@@ -10,8 +11,17 @@ func (this *ByteBufferReader) ReadInt8() int8 {
 }
 
 func (this *ByteBufferReader) ReadUInt8() byte {
+	if this.offset > 0 {
+		b := this.B[this.point-2]
+		this.offset--
+		return b
+	}
+	if this.point > 0 {
+		this.point++
+	}
 	b := this.B[this.point]
 	this.point++
+	this.offset = this.B[this.point]
 	return b
 }
 

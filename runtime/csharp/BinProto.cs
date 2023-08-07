@@ -6,6 +6,7 @@ public partial class BinProto
     {
         private byte[] b;
         private int point;
+        private byte offset;
         public BinReader(byte[] b)
         {
             this.b = b;
@@ -18,7 +19,16 @@ public partial class BinProto
 
         public byte ReadByte()
         {
-            return b[point++];
+            if(offset > 0){
+                offset --;
+                return b[point -1];
+            }
+            if(point > 0){
+                point++;
+            }
+            byte r = b[point++];
+            offset = b[point];
+            return r;
         }
 
         public sbyte ReadSByte()
@@ -175,7 +185,7 @@ public partial class BinProto
     {
         private byte[] b;
         private int point;
-
+        private byte offset;
         public byte[] GetBytes()
         {
             Array.Resize(ref b,point);
@@ -207,13 +217,24 @@ public partial class BinProto
         
         public void WriteByte(byte v)
         {
-            check(1);
+            check(2);
+            if(this.point > 0){
+                if(b[point - 1] == v){
+                    if(b[point] < 255){
+                        b[point]++;
+                        return;
+                    }
+                }
+            }
+            if(point > 0){
+                point++;
+            }
             b[point++] = v;
         }
         public void WriteSByte(sbyte v)
         {
             check(1);
-            b[point++] = (byte)v; 
+            WriteByte((byte)v)
         }
         public void WriteInt16(short v)
         {
