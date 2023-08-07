@@ -48,7 +48,7 @@ func main() {
 	flag.StringVar(&filetype, "t", "", "Type: cs go")
 	flag.Parse()
 	idStat, _ := os.Stat(inputDir)
-	if path.Ext(inputDir) != "bk" {
+	if path.Ext(inputDir) != ".bk" {
 		if idStat == nil || !idStat.IsDir() {
 			fmt.Println("Input Dir Is NotExist")
 			return

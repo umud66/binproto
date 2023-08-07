@@ -8,14 +8,14 @@ import (
 )
 
 func createGORead(fieldName string, fieldType string) string {
-	r := "r." + strings.Title(fieldName) + " = "
+	r := "this." + strings.Title(fieldName) + " = "
 	if fieldType == "int" {
 		return r + "reader.ReadInt32()\n"
 	} else if fieldType == "uint" {
 		return r + "reader.ReadUInt32()\n"
 	} else if fieldType == "byte" || fieldType == "uin8" {
 		return r + "reader.ReadUInt8()\n"
-	} else if fieldType == "in8" {
+	} else if fieldType == "int8" {
 		return r + "reader.ReadInt8()\n"
 	} else if fieldType == "int16" {
 		return r + "reader.ReadInt16()\n"
@@ -55,10 +55,12 @@ func createGORead(fieldName string, fieldType string) string {
 		baseType := strings.Replace(fieldType, "[]", "", -1)
 		r = fieldName + "ArrSize := reader.ReadInt32()\n\t\t" + r + "make([]" + baseType + "," + fieldName + "ArrSize);\n"
 		r += "\t\tfor i := 0;i < " + fieldName + "ArrSize;i++ {\n"
-		r += "\t\t\tr." + strings.Title(fieldName) + "[i] = DeSerialize" + strings.Title(baseType) + "(reader)\n\t\t}\n"
+		r += "\t\t\t_tmp:= &" + strings.Title(baseType) + "{}\n"
+		r += "\t\t\tr." + strings.Title(fieldName) + "[i] = _tmp\n"
+		r += "_tmp.DeSerialize(reader)\n\t\t}\n"
 		return r
 	}
-	return r + " DeSerialize" + strings.Title(fieldType) + "(reader)\n"
+	return r + fieldName + " = &" + strings.Title(fieldType) + "{}\n" + r + fieldName + ".DeSerialize(reader)\n"
 }
 func createGOWrite(fieldName string, fieldType string) string {
 	if fieldType == "int" {
@@ -112,6 +114,7 @@ func createGOWrite(fieldName string, fieldType string) string {
 }
 func GenerateGOFile(codes []core.CodeClass) string {
 	sb := &strings.Builder{}
+	sb.WriteString("type BinBase interface {\n\tSerialize() []byte\n\tDeSerializeByByte(v []byte)\n\tDeSerialize(reader *buffertool.ByteBufferReader)\n}\n")
 	for _, v := range codes {
 		v.Name = strings.Title(v.Name)
 		sb.WriteString("type " + v.Name + " struct{")
@@ -121,11 +124,10 @@ func GenerateGOFile(codes []core.CodeClass) string {
 		writeFuncStr.WriteString("func (this *" + v.Name + ") Serialize()[]byte{\n")
 		writeFuncStr.WriteString("\twriter:= &buffertool.ByteBufferWriter{}\n")
 		readfuncStr := &strings.Builder{}
-		readfuncStr.WriteString("func DeSerialize" + strings.Title(v.Name) + "ByByte(v []byte) " + v.Name + "{\n")
-		readfuncStr.WriteString("\treturn DeSerialize" + strings.Title(v.Name) + "(&buffertool.ByteBufferReader{B:v,})")
+		readfuncStr.WriteString("func (this *" + v.Name + ") DeSerializeByByte(v []byte) {\n")
+		readfuncStr.WriteString("\t this.DeSerialize(&buffertool.ByteBufferReader{B:v,})")
 		readfuncStr.WriteString("\n}\n")
-		readfuncStr.WriteString("func DeSerialize" + strings.Title(v.Name) + "(reader *buffertool.ByteBufferReader)" + v.Name + "{\n\tr:= &" + v.Name + "{}")
-		readfuncStr.WriteString("\n")
+		readfuncStr.WriteString("func (this *" + v.Name + ") DeSerialize(reader *buffertool.ByteBufferReader){\n")
 		for i, typename := range v.Types {
 			sb.WriteString("\t")
 			name := strings.Split(v.Names[i], "#")
@@ -150,7 +152,6 @@ func GenerateGOFile(codes []core.CodeClass) string {
 		}
 		writeFuncStr.WriteString("\treturn writer.GetBytes()\n")
 		writeFuncStr.WriteString("}\n")
-		readfuncStr.WriteString("\treturn *r\n")
 		readfuncStr.WriteString("}\n")
 		sb.WriteString("}\n")
 		sb.WriteString(readfuncStr.String())
