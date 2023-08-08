@@ -51,7 +51,7 @@ func (this *ByteBufferReader) ReadInt64() int64 {
 }
 
 func (this *ByteBufferReader) ReadUInt64() uint64 {
-	return uint64(this.ReadUInt64())
+	return uint64(this.ReadInt64())
 }
 
 func (this *ByteBufferReader) ReadInt8Arr() []int8 {
