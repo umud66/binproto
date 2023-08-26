@@ -50,7 +50,7 @@ public partial class BinProto
         {
             return ((int)ReadInt16() | ((int)ReadInt16()) << 16);
         }
-        public uint ReadUInt()
+        public uint ReadUInt32()
         {
             return (uint)ReadInt32();
         }
@@ -131,7 +131,7 @@ public partial class BinProto
             uint[] b = new uint[ReadInt32()];
             for (int i = 0; i < b.Length; i++)
             {
-                b[i] = ReadUInt();
+                b[i] = ReadUInt32();
             }
 
             return b;
@@ -188,7 +188,7 @@ public partial class BinProto
         private byte offset;
         public byte[] GetBytes()
         {
-            Array.Resize(ref b,point);
+            Array.Resize(ref b,point + 1);
             return b;
         }
         
@@ -234,7 +234,7 @@ public partial class BinProto
         public void WriteSByte(sbyte v)
         {
             check(1);
-            WriteByte((byte)v)
+            WriteByte((byte)v);
         }
         public void WriteInt16(short v)
         {

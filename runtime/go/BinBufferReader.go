@@ -12,7 +12,7 @@ func (this *ByteBufferReader) ReadInt8() int8 {
 
 func (this *ByteBufferReader) ReadUInt8() byte {
 	if this.offset > 0 {
-		b := this.B[this.point-2]
+		b := this.B[this.point-1]
 		this.offset--
 		return b
 	}
@@ -136,7 +136,8 @@ func (this *ByteBufferReader) ReadBoolArr() []bool {
 }
 
 func (this *ByteBufferReader) ReadString() string {
-	return string(this.ReadUInt8Arr())
+	arr := this.ReadUInt8Arr()
+	return string(arr)
 }
 
 func (this *ByteBufferReader) ReadStringArr() []string {

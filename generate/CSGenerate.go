@@ -70,7 +70,7 @@ func createCSWrite(fieldName string, fieldType string) string {
 	} else if fieldType == "byte" {
 		return r + "__w__.WriteByte(" + fieldName + ");\n"
 	} else if fieldType == "int8" {
-		return r + "__w__.Writeint8(" + fieldName + ");\n"
+		return r + "__w__.WriteSByte(" + fieldName + ");\n"
 	} else if fieldType == "int16" {
 		return r + "__w__.WriteInt16(" + fieldName + ");\n"
 	} else if fieldType == "uint16" {

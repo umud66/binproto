@@ -31,9 +31,11 @@ func getLink() string {
 
 func doTables(codes []core.CodeClass) {
 	if filetype == "go" {
-		os.WriteFile(outFile, []byte(generate.GenerateGOFile(codes)), os.ModePerm)
+		os.WriteFile(outFile, []byte("package binproto\n"+generate.GenerateGOFile(codes, false)), os.ModePerm)
 	} else if filetype == "cs" {
 		os.WriteFile(outFile, []byte(generate.GenerateCSFile(codes)), os.ModePerm)
+	} else if filetype == "godb" {
+		os.WriteFile(outFile, []byte("package binproto\n"+generate.GenerateGOFile(codes, true)), os.ModePerm)
 	}
 }
 
@@ -60,6 +62,12 @@ func parseSqlType(typeName string) string {
 			return "uint"
 		} else {
 			return "int"
+		}
+	} else if strings.HasPrefix(typeName, "smallint") {
+		if unsigned {
+			return "uint16"
+		} else {
+			return "int16"
 		}
 	}
 	return typeName
@@ -96,7 +104,7 @@ func main() {
 	structs := make([]core.CodeClass, 0)
 	for _, v := range tables {
 		//query table struct
-		tsr, _ := sqldb.Query(`SELECT COLUMN_NAME, COLUMN_TYPE, COLUMN_COMMENT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = "` + v + `"`)
+		tsr, _ := sqldb.Query(`SELECT COLUMN_NAME, COLUMN_TYPE, COLUMN_COMMENT,COLUMN_KEY,EXTRA FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = "` + v + `"`)
 		defer tsr.Close()
 		code := core.CodeClass{
 			Name: v,
@@ -104,13 +112,25 @@ func main() {
 		var filedName string
 		var dataType string
 		var comment string
+		var pk string
+		var extra string
 		for tsr.Next() {
-			tsr.Scan(&filedName, &dataType, &comment)
+			tsr.Scan(&filedName, &dataType, &comment, &pk, &extra)
 			if comment == "" {
 				code.Put(filedName, parseSqlType(dataType))
 			} else {
 				code.Put(filedName+"#"+comment, parseSqlType(dataType))
 			}
+			tag := "`xorm:\"" + filedName
+			if pk == "PRI" {
+				tag += " pk"
+			}
+			if extra == "auto_increment" {
+				tag += " autoincr"
+
+			}
+			tag += "\"`"
+			code.PutTag(tag)
 
 		}
 		structs = append(structs, code)

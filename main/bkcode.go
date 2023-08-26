@@ -21,7 +21,7 @@ func doCreateFile(inputFile string, outDir string, outIsDir bool, isDir bool, fi
 	if filetype == "cs" {
 		os.WriteFile(outFile, []byte(generate.GenerateCSEnumFile(codes.Enums)+generate.GenerateCSFile(codes.Codes)), os.ModePerm)
 	} else if filetype == "go" {
-		os.WriteFile(outFile, []byte(generate.GenerateGOEnumFile(codes.Enums)+generate.GenerateGOFile(codes.Codes)), os.ModePerm)
+		os.WriteFile(outFile, []byte("package binproto\n"+generate.GenerateGOEnumFile(codes.Enums)+generate.GenerateGOFile(codes.Codes)), os.ModePerm)
 	}
 }
 

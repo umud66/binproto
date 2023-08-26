@@ -7,6 +7,22 @@ import (
 	"umud.online/bin/core"
 )
 
+func isBaseType(t string) bool {
+	if strings.HasPrefix(t, "int") {
+		return true
+	}
+	if strings.HasPrefix(t, "byte") {
+		return true
+	}
+	if strings.HasPrefix(t, "bool") {
+		return true
+	}
+	if strings.HasPrefix(t, "string") {
+		return true
+	}
+	return false
+}
+
 func createGORead(fieldName string, fieldType string) string {
 	r := "this." + strings.Title(fieldName) + " = "
 	if fieldType == "int" {
@@ -53,11 +69,11 @@ func createGORead(fieldName string, fieldType string) string {
 		return r + "reader.ReadUInt16Arr();\n"
 	} else if strings.HasSuffix(fieldType, "[]") {
 		baseType := strings.Replace(fieldType, "[]", "", -1)
-		r = fieldName + "ArrSize := reader.ReadInt32()\n\t\t" + r + "make([]" + baseType + "," + fieldName + "ArrSize);\n"
+		r = fieldName + "ArrSize := reader.ReadInt32()\n\t\t" + r + "make([]" + strings.Title(baseType) + "," + fieldName + "ArrSize);\n"
 		r += "\t\tfor i := 0;i < " + fieldName + "ArrSize;i++ {\n"
-		r += "\t\t\t_tmp:= &" + strings.Title(baseType) + "{}\n"
-		r += "\t\t\tr." + strings.Title(fieldName) + "[i] = _tmp\n"
-		r += "_tmp.DeSerialize(reader)\n\t\t}\n"
+		r += "\t\t\t_tmp:= " + strings.Title(baseType) + "{}\n"
+		r += "\t\t\tthis." + strings.Title(fieldName) + "[i] = _tmp\n"
+		r += "\t\t\t_tmp.DeSerialize(reader)\n\t\t}\n"
 		return r
 	}
 	return r + fieldName + " = &" + strings.Title(fieldType) + "{}\n" + r + fieldName + ".DeSerialize(reader)\n"
@@ -112,34 +128,43 @@ func createGOWrite(fieldName string, fieldType string) string {
 	}
 	return "writer.WriteBytes(this." + strings.Title(fieldName) + ".Serialize())\n"
 }
-func GenerateGOFile(codes []core.CodeClass) string {
+func GenerateGOFile(codes []core.CodeClass, godb bool) string {
 	sb := &strings.Builder{}
-	sb.WriteString("type BinBase interface {\n\tSerialize() []byte\n\tDeSerializeByByte(v []byte)\n\tDeSerialize(reader *buffertool.ByteBufferReader)\n}\n")
+	if !godb {
+		sb.WriteString("type BinBase interface {\n\tSerialize() []byte\n\tDeSerializeByByte(v []byte)\n\tDeSerialize(reader *ByteBufferReader)\n}\n")
+	}
 	for _, v := range codes {
+		baseName := v.Name
 		v.Name = strings.Title(v.Name)
 		sb.WriteString("type " + v.Name + " struct{")
 		sb.WriteString("\n")
-
+		tableFuncStr := &strings.Builder{}
 		writeFuncStr := &strings.Builder{}
 		writeFuncStr.WriteString("func (this *" + v.Name + ") Serialize()[]byte{\n")
-		writeFuncStr.WriteString("\twriter:= &buffertool.ByteBufferWriter{}\n")
+		writeFuncStr.WriteString("\twriter:= &ByteBufferWriter{}\n")
 		readfuncStr := &strings.Builder{}
 		readfuncStr.WriteString("func (this *" + v.Name + ") DeSerializeByByte(v []byte) {\n")
-		readfuncStr.WriteString("\t this.DeSerialize(&buffertool.ByteBufferReader{B:v,})")
+		readfuncStr.WriteString("\t this.DeSerialize(&ByteBufferReader{B:v,})")
 		readfuncStr.WriteString("\n}\n")
-		readfuncStr.WriteString("func (this *" + v.Name + ") DeSerialize(reader *buffertool.ByteBufferReader){\n")
+		readfuncStr.WriteString("func (this *" + v.Name + ") DeSerialize(reader *ByteBufferReader){\n")
 		for i, typename := range v.Types {
 			sb.WriteString("\t")
 			name := strings.Split(v.Names[i], "#")
 			sb.WriteString(strings.Title(name[0]))
-
 			sb.WriteString("\t")
 			if strings.HasSuffix(typename, "[]") {
-				sb.WriteString("[]" + strings.Replace(typename, "[]", "", 1))
+				if isBaseType(typename) {
+					sb.WriteString("[]" + strings.Replace(typename, "[]", "", 1))
+				} else {
+					sb.WriteString("[]" + strings.Replace(strings.Title(typename), "[]", "", 1))
+				}
 			} else {
 				sb.WriteString(typename)
 			}
-
+			if godb {
+				sb.WriteString("\t" + v.Tags[i])
+				sb.WriteString("\t")
+			}
 			if len(name) == 2 {
 				sb.WriteString(" ")
 				sb.WriteString("//" + name[1])
@@ -154,8 +179,14 @@ func GenerateGOFile(codes []core.CodeClass) string {
 		writeFuncStr.WriteString("}\n")
 		readfuncStr.WriteString("}\n")
 		sb.WriteString("}\n")
-		sb.WriteString(readfuncStr.String())
-		sb.WriteString(writeFuncStr.String())
+		if !godb {
+			sb.WriteString(readfuncStr.String())
+			sb.WriteString(writeFuncStr.String())
+		} else {
+			tableFuncStr.WriteString("func (this *" + v.Name + ") TableName() string {\n")
+			tableFuncStr.WriteString("\treturn \"" + baseName + "\"\n}\n")
+			sb.WriteString(tableFuncStr.String())
+		}
 	}
 	return sb.String()
 }

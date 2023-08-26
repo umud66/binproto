@@ -10,6 +10,7 @@ type CodeClass struct {
 	Name  string
 	Types []string
 	Names []string
+	Tags  []string
 }
 
 func (this *CodeClass) PutField(field string) {
@@ -20,4 +21,7 @@ func (this *CodeClass) PutField(field string) {
 func (this *CodeClass) Put(field string, fieldType string) {
 	this.Names = append(this.Names, field)
 	this.Types = append(this.Types, fieldType)
+}
+func (this *CodeClass) PutTag(tag string) {
+	this.Tags = append(this.Tags, tag)
 }
