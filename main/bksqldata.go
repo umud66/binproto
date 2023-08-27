@@ -44,71 +44,38 @@ func doDataTables(data []core.DataTable) {
 		tmpData.WriteUInt32(table.Size)
 		columnSize := len(table.ColsName)
 		for _, row := range table.Rows {
+
 			for i := 0; i < columnSize; i++ {
 				data := row.Data[i]
 				typeName := table.ColsType[i]
-				if typeName == "uint8" || typeName == "byte" {
-					if data == nil {
-						tmpData.WriteUInt8(0)
-					} else {
-						tmpData.WriteUInt8(*data.(*uint8))
-					}
-				} else if typeName == "int8" {
-					if data == nil {
-						tmpData.WriteUInt8(0)
-					} else {
-						tmpData.WriteUInt8(uint8(*data.(*int8)))
-					}
-				} else if typeName == "string" {
+				if typeName == "string" {
 					if data == nil {
 						tmpData.WriteString("")
 					} else {
 						tmpData.WriteString(*data.(*string))
 					}
-				} else if typeName == "uint16" {
-					if data == nil {
-						tmpData.WriteUInt16(0)
-					} else {
-						tmpData.WriteUInt16(*data.(*uint16))
-					}
-				} else if typeName == "int16" {
-					if data == nil {
-						tmpData.WriteInt16(0)
-					} else {
-						tmpData.WriteInt16(*data.(*int16))
-					}
-				} else if typeName == "uint" {
-					if data == nil {
-						tmpData.WriteUInt32(0)
-					} else {
-						tmpData.WriteUInt32(*data.(*uint))
-					}
-				} else if typeName == "int" {
-					if data == nil {
-						tmpData.WriteInt32(0)
-					} else {
-						tmpData.WriteInt32(*data.(*int))
-					}
-				} else if typeName == "int64" {
-					if data == nil {
-						tmpData.WriteInt64(0)
-					} else {
-						tmpData.WriteInt64(*data.(*int64))
-					}
-				} else if typeName == "uint64" {
-					if data == nil {
-						tmpData.WriteUInt64(0)
-					} else {
-						tmpData.WriteUInt64(*data.(*uint64))
-					}
 				} else {
-
-					fmt.Println("unkone data type", typeName, &data)
+					var v uint = 0
+					if data != nil {
+						v = *(data.(*uint))
+					}
+					if typeName == "uint8" || typeName == "byte" || typeName == "int8" {
+						tmpData.WriteUInt8(uint8(v))
+					} else if typeName == "int16" {
+						tmpData.WriteInt16(int16(v))
+					} else if typeName == "uint16" {
+						tmpData.WriteUInt16(uint16(v))
+					} else if typeName == "int" {
+						tmpData.WriteInt32(int(v))
+					} else if typeName == "uint" {
+						tmpData.WriteUInt32(uint(v))
+					} else if typeName == "int64" {
+						tmpData.WriteInt64(int64(v))
+					} else if typeName == "uint64" {
+						tmpData.WriteUInt64(uint64(v))
+					}
 				}
 			}
-		}
-		if table.Name == "data_building" {
-			testReader(tmpData.GetBytes())
 		}
 		os.WriteFile(outFile+"/"+table.Name+".bytes", tmpData.GetBytes(), os.ModePerm)
 	}
@@ -119,20 +86,6 @@ func doDataTables(data []core.DataTable) {
 	// } else if filetype == "godb" {
 	// 	os.WriteFile(outFile, []byte("package binproto\n"+generate.GenerateGOFile(codes, true)), os.ModePerm)
 	// }
-}
-func testReader(data []byte) {
-	fmt.Println(data)
-	reader := &buffertool.ByteBufferReader{B: data}
-	size := reader.ReadUInt32()
-	fmt.Println(size)
-	for i := 0; i < int(size); i++ {
-		fmt.Println("id:", reader.ReadUInt32())
-		fmt.Println("name:", reader.ReadString())
-		fmt.Println("pos:", reader.ReadUInt8())
-		fmt.Println("icon:", reader.ReadString())
-		fmt.Println("inhome:", reader.ReadUInt8())
-		fmt.Println("model:", reader.ReadString())
-	}
 }
 func parseSqlType(typeName string) string {
 	unsigned := strings.Index(typeName, "unsigned") > 0
@@ -217,6 +170,7 @@ func main() {
 				colNames += ","
 			}
 		}
+		fmt.Println(dataTable.ColsName, dataTable.ColsType)
 		dataTsr, err := sqldb.Query("select " + colNames + " from " + v)
 		if err != nil {
 			fmt.Println(err)
@@ -228,36 +182,13 @@ func main() {
 			dataRow := core.DataTableRow{}
 			dataRow.Data = make([]interface{}, len(dataTable.ColsName))
 			for k, _ := range vals {
-				if dataTable.ColsType[k] == "uint8" {
-					var v uint8
-					dataRow.Data[k] = &v
-				} else if dataTable.ColsType[k] == "int8" {
-					var v int8
-					dataRow.Data[k] = &v
-				} else if dataTable.ColsType[k] == "int16" {
-					var v int16
-					dataRow.Data[k] = &v
-				} else if dataTable.ColsType[k] == "uint16" {
-					var v uint16
-					dataRow.Data[k] = &v
-				} else if dataTable.ColsType[k] == "uint" {
-					var v uint
-					dataRow.Data[k] = &v
-				} else if dataTable.ColsType[k] == "int" {
-					var v int
-					dataRow.Data[k] = &v
-				} else if dataTable.ColsType[k] == "int64" {
-					var v int64
-					dataRow.Data[k] = &v
-				} else if dataTable.ColsType[k] == "uint64" {
-					var v int64
-					dataRow.Data[k] = &v
-				} else if dataTable.ColsType[k] == "string" {
+				if dataTable.ColsType[k] == "string" {
 					var v string
 					dataRow.Data[k] = &v
+				} else {
+					var v uint
+					dataRow.Data[k] = &v
 				}
-
-				// dataRow.Data[k] = &vals[k]
 			}
 			err = dataTsr.Scan(dataRow.Data...)
 			dataTable.Rows = append(dataTable.Rows, dataRow)
