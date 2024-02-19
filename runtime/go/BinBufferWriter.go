@@ -14,17 +14,17 @@ func (this *ByteBufferWriter) check(size int) {
 
 func (this *ByteBufferWriter) WriteUInt8(v byte) {
 	this.check(2)
-	if this.point > 0 {
-		if this.b[this.point-1] == v {
-			if this.b[this.point] < 255 {
-				this.b[this.point]++
-				return
-			}
-		}
-	}
-	if this.point > 0 {
-		this.point++
-	}
+	// if this.point > 0 {
+	// 	if this.b[this.point-1] == v {
+	// 		if this.b[this.point] < 255 {
+	// 			this.b[this.point]++
+	// 			return
+	// 		}
+	// 	}
+	// }
+	// if this.point > 0 {
+	// 	this.point++
+	// }
 	this.b[this.point] = v
 	this.point++
 }
@@ -155,5 +155,5 @@ func (this *ByteBufferWriter) WriteBoolArr(v []bool) {
 }
 
 func (this *ByteBufferWriter) GetBytes() []byte {
-	return this.b[:this.point+1]
+	return this.b[:this.point]
 }
