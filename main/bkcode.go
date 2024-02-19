@@ -22,6 +22,12 @@ func doCreateFile(inputFile string, outDir string, outIsDir bool, isDir bool, fi
 		os.WriteFile(outFile, []byte(generate.GenerateCSEnumFile(codes.Enums)+generate.GenerateCSFile(codes.Codes)), os.ModePerm)
 	} else if filetype == "go" {
 		os.WriteFile(outFile, []byte("package binproto\n"+generate.GenerateGOEnumFile(codes.Enums)+generate.GenerateGOFile(codes.Codes)), os.ModePerm)
+	} else if filetype == "ts" {
+		os.WriteFile(outFile, []byte((&generate.TSFileGenerate{
+			Class: codes.Codes,
+			Enums: codes.Enums,
+		}).WriteAll()), os.ModePerm)
+		// os.WriteFile(outFile, []byte("import { BinProtoReader, BinProtoWriter } from './BinProto';\n"+generate.GenerateTSEnumFile(codes.Enums)+generate.GenerateTSFile(codes.Codes)), os.ModePerm)
 	}
 }
 
