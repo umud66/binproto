@@ -216,3 +216,30 @@ func GenerateGOEnumFile(enums []core.CodeEnum) string {
 	}
 	return sb.String()
 }
+
+func GenerateGOConstFile(enums []core.CodeConst) string {
+	sb := &strings.Builder{}
+	for _, e := range enums {
+		typeName := strings.Title(e.Name)
+		sb.WriteString("const (\n")
+		for i, basename := range e.Names {
+			names := strings.Split(basename, "#")
+			sb.WriteString("\t" + typeName + "_" + strings.Title(names[0]) + " = ")
+			tmpValue := e.Values[i]
+			if strings.Index(tmpValue, "=") > 0 {
+				tmpValue = strings.Split(tmpValue, "=")[1]
+			}
+			if e.ValueType == "string" {
+				sb.WriteString("\"" + tmpValue + "\"")
+			} else {
+				sb.WriteString(tmpValue)
+			}
+			if len(names) == 2 {
+				sb.WriteString(" //" + names[1])
+			}
+			sb.WriteString("\n")
+		}
+		sb.WriteString(")\n")
+	}
+	return sb.String()
+}

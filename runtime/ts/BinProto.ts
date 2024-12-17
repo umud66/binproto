@@ -2,7 +2,7 @@ const UINT64MAX = Math.pow(2,64) -1;
 const UINT32MAX = Math.pow(2,32) -1;
 const UINT16MAX = Math.pow(2,16) - 1;
 const UINT8MAX = Math.pow(2,8) - 1;
-class BinProtoReader{
+export class BinProtoReader{
     constructor(data:Uint8Array){
         this.data = data.entries()
         this.readPoint = 0;
@@ -104,7 +104,7 @@ class BinProtoReader{
         return r;
     }
 }
-class BinProtoWriter{
+export class BinProtoWriter{
     data:number[];
     writePoint:number;
     constructor(){
@@ -211,3 +211,46 @@ class BinProtoWriter{
         return this.data
     }
 }
+// let writer = new BinProtoWriter();
+// console.log(229921394282)
+// writer.WriteInt64(229921394282)
+// writer.WriteUInt16(65533)
+// writer.WriteString("123")
+// console.log(writer.GetBytes())
+
+// let reader = new BinProtoReader(writer.GetBytes());
+// console.log(reader)
+// console.log(reader.ReadInt64())
+// console.log(reader.ReadUInt16())
+// console.log(reader.ReadUInt16())
+// console.log(reader.ReadString())
+
+// class Test{
+//     buffer:number[];
+//     constructor(){
+//         this.buffer = [];
+//     }
+//     WriteByte(val:number) {
+
+//         if(val > 255)
+//             val = 255;
+//         this.buffer.push(val)    
+//     }
+// }
+
+// function testInt(val:number){
+//     let buffer:any = [];
+//     buffer[0] = val & 255;
+//     buffer[1] = val>>=8 & 255;
+//     buffer[2] = val>>=8 & 255;
+//     buffer[3] = val>>=8 & 255;
+//     console.log(buffer)
+//     let t = buffer[0]
+//     t |= buffer[1] << 8
+//     t |= buffer[2] << 16
+//     t |= buffer[3] << 24
+//     console.log(t)
+// }
+// // testInt(65536)
+// console.log(UINT8MAX)
+// console.log(256 & 256)

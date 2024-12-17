@@ -18,6 +18,7 @@ var host string
 var db string
 var outFile string
 var filetype string
+var gopackage string
 
 func getLink() string {
 	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=Local",
@@ -31,11 +32,15 @@ func getLink() string {
 
 func doTables(codes []core.CodeClass) {
 	if filetype == "go" {
-		os.WriteFile(outFile, []byte("package binproto\n"+generate.GenerateGOFile(codes, false)), os.ModePerm)
+		os.WriteFile(outFile, []byte("package "+gopackage+"\n"+generate.GenerateGOFile(codes, false)), os.ModePerm)
 	} else if filetype == "cs" {
 		os.WriteFile(outFile, []byte(generate.GenerateCSFile(codes)), os.ModePerm)
 	} else if filetype == "godb" {
-		os.WriteFile(outFile, []byte("package binproto\n"+generate.GenerateGOFile(codes, true)), os.ModePerm)
+		os.WriteFile(outFile, []byte("package "+gopackage+"\n"+generate.GenerateGOFile(codes, true)), os.ModePerm)
+	} else if filetype == "ts" {
+		os.WriteFile(outFile, []byte((&generate.TSFileGenerate{
+			Class: codes,
+		}).WriteAll()), os.ModePerm)
 	}
 }
 
@@ -81,6 +86,7 @@ func main() {
 	flag.StringVar(&db, "d", "", "sql database")
 	flag.StringVar(&outFile, "o", "", "Out File")
 	flag.StringVar(&filetype, "t", "", "Type: cs go")
+	flag.StringVar(&gopackage, "gp", "binproto", "go package default:binproto")
 	flag.Parse()
 
 	sqldb, err := sql.Open("mysql", getLink())

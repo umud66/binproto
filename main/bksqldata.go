@@ -19,6 +19,7 @@ var host string
 var db string
 var outFile string
 var filetype string
+var endName string
 
 func isLittleEndian() bool {
 	var i int32 = 0x01020304
@@ -77,7 +78,7 @@ func doDataTables(data []core.DataTable) {
 				}
 			}
 		}
-		os.WriteFile(outFile+"/"+table.Name+".bytes", tmpData.GetBytes(), os.ModePerm)
+		os.WriteFile(outFile+"/"+table.Name+"."+endName, tmpData.GetBytes(), os.ModePerm)
 	}
 	// if filetype == "go" {
 	// 	os.WriteFile(outFile, []byte("package binproto\n"+generate.GenerateGOFile(codes, false)), os.ModePerm)
@@ -129,6 +130,7 @@ func main() {
 	flag.StringVar(&db, "d", "", "sql database")
 	flag.StringVar(&outFile, "o", "", "Out File")
 	flag.StringVar(&filetype, "t", "", "Type: cs go")
+	flag.StringVar(&endName, "e", "bytes", "end Name")
 	flag.Parse()
 
 	sqldb, err := sql.Open("mysql", getLink())
@@ -170,7 +172,6 @@ func main() {
 				colNames += ","
 			}
 		}
-		fmt.Println(dataTable.ColsName, dataTable.ColsType)
 		dataTsr, err := sqldb.Query("select " + colNames + " from " + v)
 		if err != nil {
 			fmt.Println(err)

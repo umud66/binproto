@@ -8,18 +8,24 @@ import (
 )
 
 type TSFileGenerate struct {
-	Enums []core.CodeEnum
-	Class []core.CodeClass
+	Enums  []core.CodeEnum
+	Class  []core.CodeClass
+	Consts []core.CodeConst
 }
 
 func (this *TSFileGenerate) WriteAll() string {
-	return "import { BinProtoReader, BinProtoWriter } from './BinProto';\n" + this.GenerateTSEnumFile(this.Enums) + this.GenerateTSFile(this.Class) + this.writeExport()
+	return "import { BinProtoReader, BinProtoWriter } from './BinProto';\n" + this.GenerateTSEnumFile(this.Enums) + this.GenerateTSConstFile(this.Consts) + this.GenerateTSFile(this.Class) + this.writeExport()
 }
 func (this *TSFileGenerate) writeExport() string {
 	sb := &strings.Builder{}
 	sb.WriteString("export{")
 	if this.Enums != nil {
 		for _, r := range this.Enums {
+			sb.WriteString(r.Name + ",")
+		}
+	}
+	if this.Consts != nil {
+		for _, r := range this.Consts {
 			sb.WriteString(r.Name + ",")
 		}
 	}
@@ -169,7 +175,7 @@ func convTSType(typename string) string {
 
 func generateConstructor(v core.CodeClass) string {
 	sb := &strings.Builder{}
-	sb.WriteString("\tconstructor(")
+	sb.WriteString("\t public constructor(")
 
 	bodyStr := &strings.Builder{}
 	for i, typeName := range v.Types {
@@ -211,13 +217,20 @@ func (this *TSFileGenerate) GenerateTSFile(codes []core.CodeClass) string {
 		writeFuncStr.WriteString("\tSerialize():number[]{\n")
 		writeFuncStr.WriteString("\t\tlet __w__ = new BinProtoWriter();\n")
 		funcStr := &strings.Builder{}
-		funcStr.WriteString("\tDeSerialize(bytes:Uint8Array){\n")
+		funcStr.WriteString("\tDeSerialize(bytes:Uint8Array|number[]){\n")
 		funcStr.WriteString("\t\treturn this.DeSerializeReader(new BinProtoReader(bytes));\n")
+		funcStr.WriteString("\t}\n")
+
+		funcStr.WriteString("\tpublic static DeSerializeStatic(bytes:Uint8Array|number[]):" + v.Name + "{\n")
+		funcStr.WriteString("\t\tlet r = new " + v.Name + "();\n")
+		funcStr.WriteString("\t\tr.DeSerialize(bytes);\n")
+		funcStr.WriteString("\t\treturn r;\n")
 		funcStr.WriteString("\t}\n")
 		funcStr.WriteString("\tDeSerializeReader(__r__:BinProtoReader){\n")
 		for i, typename := range v.Types {
 			sb.WriteString("\t")
 			name := strings.Split(v.Names[i], "#")
+			sb.WriteString("public ")
 			sb.WriteString(name[0])
 			sb.WriteString(":")
 			sb.WriteString(convTSType(typename))
@@ -259,6 +272,34 @@ func (this *TSFileGenerate) GenerateTSEnumFile(enums []core.CodeEnum) string {
 				lastValue = tmpValue
 			}
 			sb.WriteString(",")
+			if len(names) == 2 {
+				sb.WriteString(" //" + names[1])
+			}
+			sb.WriteString("\n")
+		}
+		sb.WriteString("}\n")
+
+	}
+	return sb.String()
+}
+
+func (this *TSFileGenerate) GenerateTSConstFile(consts []core.CodeConst) string {
+	sb := &strings.Builder{}
+	for _, e := range consts {
+		sb.WriteString("class " + e.Name + " {\n")
+		for i, basename := range e.Names {
+			names := strings.Split(basename, "#")
+			sb.WriteString("\tpublic static " + names[0] + " = ")
+			tmpValue := e.Values[i]
+			if strings.Index(tmpValue, "=") > 0 {
+				tmpValue = strings.Split(tmpValue, "=")[1]
+			}
+			if e.ValueType == "string" {
+				sb.WriteString("\"" + tmpValue + "\"")
+			} else {
+				sb.WriteString(tmpValue)
+			}
+			sb.WriteString(";")
 			if len(names) == 2 {
 				sb.WriteString(" //" + names[1])
 			}
