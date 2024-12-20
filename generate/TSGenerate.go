@@ -166,6 +166,10 @@ func convTSType(typename string) string {
 		typename = "number"
 	} else if typename == "uint" {
 		typename = "number"
+	} else if typename == "ushort" {
+		typename = "number"
+	} else if typename == "bool" {
+		typename = "boolean"
 	}
 	if isArr {
 		return typename + "[]"

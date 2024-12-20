@@ -88,7 +88,6 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(tables)
 	structs := make([]core.CodeClass, 0)
 	for _, v := range tables {
 		//query table struct

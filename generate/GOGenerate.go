@@ -24,7 +24,7 @@ func isBaseType(t string) bool {
 }
 
 func createGORead(fieldName string, fieldType string) string {
-	r := "this." + strings.Title(fieldName) + " = "
+	r := "data." + strings.Title(fieldName) + " = "
 	if fieldType == "int" {
 		return r + "reader.ReadInt32()\n"
 	} else if fieldType == "uint" {
@@ -72,7 +72,7 @@ func createGORead(fieldName string, fieldType string) string {
 		r = fieldName + "ArrSize := reader.ReadInt32()\n\t\t" + r + "make([]" + strings.Title(baseType) + "," + fieldName + "ArrSize);\n"
 		r += "\t\tfor i := 0;i < " + fieldName + "ArrSize;i++ {\n"
 		r += "\t\t\t_tmp:= " + strings.Title(baseType) + "{}\n"
-		r += "\t\t\tthis." + strings.Title(fieldName) + "[i] = _tmp\n"
+		r += "\t\t\tdata." + strings.Title(fieldName) + "[i] = _tmp\n"
 		r += "\t\t\t_tmp.DeSerialize(reader)\n\t\t}\n"
 		return r
 	}
@@ -80,58 +80,58 @@ func createGORead(fieldName string, fieldType string) string {
 }
 func createGOWrite(fieldName string, fieldType string) string {
 	if fieldType == "int" {
-		return "writer.WriteInt32(this." + strings.Title(fieldName) + ")\n"
+		return "writer.WriteInt32(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "uint" {
-		return "writer.WriteUInt32(this." + strings.Title(fieldName) + ")\n"
+		return "writer.WriteUInt32(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "byte" || fieldType == "uint8" {
-		return "writer.WriteUInt8(this." + strings.Title(fieldName) + ")\n"
+		return "writer.WriteUInt8(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "int8" {
-		return "writer.WriteInt8(this." + strings.Title(fieldName) + ")\n"
+		return "writer.WriteInt8(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "int64" {
-		return "writer.WriteInt64(this." + strings.Title(fieldName) + ")\n"
+		return "writer.WriteInt64(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "uint64" {
-		return "writer.WriteUInt64(this." + strings.Title(fieldName) + ")\n"
+		return "writer.WriteUInt64(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "bool" {
-		return "writer.WriteBool(this." + strings.Title(fieldName) + ")\n"
+		return "writer.WriteBool(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "int16" {
-		return "writer.WriteInt16(this." + strings.Title(fieldName) + ")\n"
+		return "writer.WriteInt16(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "uint16" {
-		return "writer.WriteUInt16(this." + strings.Title(fieldName) + ")\n"
+		return "writer.WriteUInt16(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "string" {
-		return "writer.WriteString(this." + strings.Title(fieldName) + ")\n"
+		return "writer.WriteString(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "int[]" {
-		return "writer.WriteInt32Arr(this." + strings.Title(fieldName) + ")\n"
+		return "writer.WriteInt32Arr(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "uint[]" {
-		return "writer.WriteUInt32Arr(this." + strings.Title(fieldName) + ")\n"
+		return "writer.WriteUInt32Arr(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "byte[]" || fieldType == "uin8[]" {
-		return "writer.WriteUInt8Arr(this." + strings.Title(fieldName) + ")\n"
+		return "writer.WriteUInt8Arr(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "int8[]" {
-		return "writer.WriteInt8Arr(this." + strings.Title(fieldName) + ")\n"
+		return "writer.WriteInt8Arr(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "int16[]" {
-		return "writer.WriteInt16Arr(this." + strings.Title(fieldName) + ")\n"
+		return "writer.WriteInt16Arr(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "uint16[]" {
-		return "writer.WriteUInt16Arr(this." + strings.Title(fieldName) + ")\n"
+		return "writer.WriteUInt16Arr(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "int64[]" {
-		return "writer.WriteInt64Arr(this." + strings.Title(fieldName) + ")\n"
+		return "writer.WriteInt64Arr(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "uint64[]" {
-		return "writer.WriteUInt64Arr(this." + strings.Title(fieldName) + ")\n"
+		return "writer.WriteUInt64Arr(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "string[]" {
-		return "writer.WriteStringArr(this." + strings.Title(fieldName) + ")\n"
+		return "writer.WriteStringArr(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "bool[]" {
-		return "writer.WriteBoolArr(this." + strings.Title(fieldName) + ")\n"
+		return "writer.WriteBoolArr(data." + strings.Title(fieldName) + ")\n"
 	} else if strings.HasSuffix(fieldType, "[]") {
-		r := fieldName + "ArrSize := len(this." + strings.Title(fieldName) + ")\n"
+		r := fieldName + "ArrSize := len(data." + strings.Title(fieldName) + ")\n"
 		r += "\twriter.WriteInt32(" + fieldName + "ArrSize)\n"
 		r += "\t\tfor i := 0;i < " + fieldName + "ArrSize;i++ {\n"
-		r += "\t\t\twriter.WriteBytes(this." + strings.Title(fieldName) + "[i].Serialize())\n\t\t}\n"
+		r += "\t\t\twriter.WriteBytes(data." + strings.Title(fieldName) + "[i].Serialize())\n\t\t}\n"
 		return r
 	}
-	return "writer.WriteBytes(this." + strings.Title(fieldName) + ".Serialize())\n"
+	return "writer.WriteBytes(data." + strings.Title(fieldName) + ".Serialize())\n"
 }
 func GenerateGOFile(codes []core.CodeClass, godb bool) string {
 	sb := &strings.Builder{}
 	if !godb {
-		sb.WriteString("type BinBase interface {\n\tSerialize() []byte\n\tDeSerializeByByte(v []byte)\n\tDeSerialize(reader *ByteBufferReader)\n}\n")
+		// sb.WriteString("type BinBase interface {\n\tSerialize() []byte\n\tDeSerializeByByte(v []byte)\n\tDeSerialize(reader *ByteBufferReader)\n}\n")
 	}
 	for _, v := range codes {
 		baseName := v.Name
@@ -140,13 +140,13 @@ func GenerateGOFile(codes []core.CodeClass, godb bool) string {
 		sb.WriteString("\n")
 		tableFuncStr := &strings.Builder{}
 		writeFuncStr := &strings.Builder{}
-		writeFuncStr.WriteString("func (this *" + v.Name + ") Serialize()[]byte{\n")
+		writeFuncStr.WriteString("func (data *" + v.Name + ") Serialize()[]byte{\n")
 		writeFuncStr.WriteString("\twriter:= &ByteBufferWriter{}\n")
 		readfuncStr := &strings.Builder{}
-		readfuncStr.WriteString("func (this *" + v.Name + ") DeSerializeByByte(v []byte) {\n")
-		readfuncStr.WriteString("\t this.DeSerialize(&ByteBufferReader{B:v,})")
+		readfuncStr.WriteString("func (data *" + v.Name + ") DeSerializeByByte(v []byte) {\n")
+		readfuncStr.WriteString("\t data.DeSerialize(&ByteBufferReader{B:v,})")
 		readfuncStr.WriteString("\n}\n")
-		readfuncStr.WriteString("func (this *" + v.Name + ") DeSerialize(reader *ByteBufferReader){\n")
+		readfuncStr.WriteString("func (data *" + v.Name + ") DeSerialize(reader *ByteBufferReader){\n")
 		for i, typename := range v.Types {
 			sb.WriteString("\t")
 			name := strings.Split(v.Names[i], "#")
@@ -183,7 +183,7 @@ func GenerateGOFile(codes []core.CodeClass, godb bool) string {
 			sb.WriteString(readfuncStr.String())
 			sb.WriteString(writeFuncStr.String())
 		} else {
-			tableFuncStr.WriteString("func (this *" + v.Name + ") TableName() string {\n")
+			tableFuncStr.WriteString("func (data *" + v.Name + ") TableName() string {\n")
 			tableFuncStr.WriteString("\treturn \"" + baseName + "\"\n}\n")
 			sb.WriteString(tableFuncStr.String())
 		}

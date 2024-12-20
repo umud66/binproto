@@ -17,6 +17,31 @@ var outFile string
 var filetype string
 var endName string
 
+func writeData(typeName string, value string, tmpData *buffertool.ByteBufferWriter) {
+	if typeName == "string" {
+		tmpData.WriteString(value)
+	} else if typeName == "bool" || typeName == "boolean" {
+		tmpData.WriteBool(value == "" || value == "false")
+	} else {
+		var v uint64 = 0
+		v, _ = strconv.ParseUint(value, 10, 64)
+		if typeName == "uint8" || typeName == "byte" || typeName == "int8" {
+			tmpData.WriteUInt8(uint8(v))
+		} else if typeName == "int16" {
+			tmpData.WriteInt16(int16(v))
+		} else if typeName == "uint16" {
+			tmpData.WriteUInt16(uint16(v))
+		} else if typeName == "int" {
+			tmpData.WriteInt32(int(v))
+		} else if typeName == "uint" {
+			tmpData.WriteUInt32(uint(v))
+		} else if typeName == "int64" {
+			tmpData.WriteInt64(int64(v))
+		} else if typeName == "uint64" {
+			tmpData.WriteUInt64(uint64(v))
+		}
+	}
+}
 func doDataTables(data []core.DataTable) {
 	for _, table := range data {
 		tmpData := &buffertool.ByteBufferWriter{}
@@ -26,33 +51,26 @@ func doDataTables(data []core.DataTable) {
 
 			for i := 0; i < columnSize; i++ {
 				data := row.Data[i]
+
 				typeName := table.ColsType[i]
-				if typeName == "string" {
-					if data == nil {
-						tmpData.WriteString("")
-					} else {
-						tmpData.WriteString(data.(string))
+				isArray := strings.HasSuffix(typeName, "[]")
+				if isArray {
+					typeName = strings.Replace(typeName, "[]", "", -1)
+				}
+				v := ""
+				if data != nil {
+					v = data.(string)
+				}
+				if isArray {
+					v = strings.Replace(typeName, "[", "", -1)
+					v = strings.Replace(typeName, "]", "", -1)
+					dataArr := strings.Split(v, ",")
+					tmpData.WriteInt32(len(dataArr))
+					for _, d := range dataArr {
+						writeData(typeName, d, tmpData)
 					}
 				} else {
-					var v uint64 = 0
-					if data != nil {
-						v, _ = strconv.ParseUint(data.(string), 10, 64)
-					}
-					if typeName == "uint8" || typeName == "byte" || typeName == "int8" {
-						tmpData.WriteUInt8(uint8(v))
-					} else if typeName == "int16" {
-						tmpData.WriteInt16(int16(v))
-					} else if typeName == "uint16" {
-						tmpData.WriteUInt16(uint16(v))
-					} else if typeName == "int" {
-						tmpData.WriteInt32(int(v))
-					} else if typeName == "uint" {
-						tmpData.WriteUInt32(uint(v))
-					} else if typeName == "int64" {
-						tmpData.WriteInt64(int64(v))
-					} else if typeName == "uint64" {
-						tmpData.WriteUInt64(uint64(v))
-					}
+					writeData(typeName, v, tmpData)
 				}
 			}
 		}
@@ -97,10 +115,11 @@ func parseSqlType(typeName string) string {
 		} else {
 			return "int16"
 		}
+	} else if typeName == "boolean" {
+		return "bool"
 	}
 	return typeName
 }
-
 func main() {
 
 	flag.StringVar(&inFile, "i", "", "excelfile")
@@ -125,7 +144,6 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(tables)
 	dataTables := make([]core.DataTable, 0)
 	for _, v := range tables {
 		tsr, _ := excel.GetRows(v)
@@ -145,7 +163,11 @@ func main() {
 			dataRow := core.DataTableRow{}
 			dataRow.Data = make([]interface{}, cols)
 			for j := 0; j < cols; j++ {
-				dataRow.Data[j] = tsr[i][j]
+				if j >= len(tsr[i]) {
+					dataRow.Data[j] = ""
+				} else {
+					dataRow.Data[j] = tsr[i][j]
+				}
 			}
 			dataTable.Rows = append(dataTable.Rows, dataRow)
 		}
