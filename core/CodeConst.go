@@ -14,9 +14,13 @@ type CodeConst struct {
 func (this *CodeConst) WriteConst(v string) {
 	tmp := strings.Split(v, "#")
 	v1 := strings.Split(tmp[0], "=")
+	if len(v1) == 2 {
+		this.Values = append(this.Values, v1[1])
+	} else {
+		this.Values = append(this.Values, v1[0])
+	}
 	if len(tmp) == 2 {
 		v1[0] += "#" + tmp[1]
 	}
 	this.Names = append(this.Names, v1[0])
-	this.Values = append(this.Values, v)
 }
