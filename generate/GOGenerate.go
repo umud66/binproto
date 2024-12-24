@@ -11,6 +11,9 @@ func isBaseType(t string) bool {
 	if strings.HasPrefix(t, "int") {
 		return true
 	}
+	if strings.HasPrefix(t, "uint") {
+		return true
+	}
 	if strings.HasPrefix(t, "byte") {
 		return true
 	}
@@ -76,7 +79,8 @@ func createGORead(fieldName string, fieldType string) string {
 		r += "\t\t\t_tmp.DeSerialize(reader)\n\t\t}\n"
 		return r
 	}
-	return r + fieldName + " = &" + strings.Title(fieldType) + "{}\n" + r + fieldName + ".DeSerialize(reader)\n"
+
+	return fieldName + " := " + strings.Title(fieldType) + "{}\n" + fieldName + ".DeSerialize(reader)\n" + r + fieldName + "\n"
 }
 func createGOWrite(fieldName string, fieldType string) string {
 	if fieldType == "int" {
@@ -159,7 +163,11 @@ func GenerateGOFile(codes []core.CodeClass, godb bool) string {
 					sb.WriteString("[]" + strings.Replace(strings.Title(typename), "[]", "", 1))
 				}
 			} else {
-				sb.WriteString(typename)
+				if isBaseType(typename) {
+					sb.WriteString(typename)
+				} else {
+					sb.WriteString(strings.Title(typename))
+				}
 			}
 			if godb {
 				sb.WriteString("\t" + v.Tags[i])

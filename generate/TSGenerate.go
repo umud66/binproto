@@ -89,7 +89,7 @@ func createTSRead(fieldName string, fieldType string) string {
 		r += "\t\t\t this." + fieldName + ".push(" + fieldName + "_temp);\n\t\t}\n"
 		return r
 	}
-	return "data." + fieldName + " = " + fieldType + ".DeSerializeReader(__r__);\n"
+	return "this." + fieldName + " = " + fieldType + ".DeSerializeReaderStatic(__r__);\n"
 }
 
 func createTSWrite(fieldName string, fieldType string) string {
@@ -228,6 +228,11 @@ func (this *TSFileGenerate) GenerateTSFile(codes []core.CodeClass) string {
 		funcStr.WriteString("\tpublic static DeSerializeStatic(bytes:Uint8Array|number[]):" + v.Name + "{\n")
 		funcStr.WriteString("\t\tlet r = new " + v.Name + "();\n")
 		funcStr.WriteString("\t\tr.DeSerialize(bytes);\n")
+		funcStr.WriteString("\t\treturn r;\n")
+		funcStr.WriteString("\t}\n")
+		funcStr.WriteString("\tpublic static DeSerializeReaderStatic(__r__:BinProtoReader):" + v.Name + "{\n")
+		funcStr.WriteString("\t\tlet r = new " + v.Name + "();\n")
+		funcStr.WriteString("\t\tr.DeSerializeReader(__r__);\n")
 		funcStr.WriteString("\t\treturn r;\n")
 		funcStr.WriteString("\t}\n")
 		funcStr.WriteString("\tDeSerializeReader(__r__:BinProtoReader){\n")
