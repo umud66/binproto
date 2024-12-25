@@ -65,8 +65,6 @@ func (this *bkExcelDataVal) doDataTables(data []core.DataTable) {
 					v = data.(string)
 				}
 				if isArray {
-					v = strings.Replace(typeName, "[", "", -1)
-					v = strings.Replace(typeName, "]", "", -1)
 					dataArr := strings.Split(v, ",")
 					tmpData.WriteInt32(len(dataArr))
 					for _, d := range dataArr {
