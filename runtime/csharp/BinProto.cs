@@ -48,7 +48,7 @@ public partial class BinProto
         
         public int ReadInt32()
         {
-            return ((int)ReadInt16() | ((int)ReadInt16()) << 16);
+            return (int)(ReadByte() << 24 | ReadByte() << 16 | ReadByte() << 8 | ReadByte());
         }
         public uint ReadUInt32()
         {
@@ -56,7 +56,7 @@ public partial class BinProto
         }
         public long ReadInt64()
         {
-            return (long)ReadInt32() | (long)ReadInt32() << 32;
+            return (long)(ReadByte() << 56 | ReadByte() << 48 | ReadByte() << 40 | ReadByte() << 32 | ReadByte() << 24 | ReadByte() << 16 | ReadByte() << 8 | ReadByte());
         }
         
         public ulong ReadUInt64()
@@ -247,8 +247,12 @@ public partial class BinProto
         }
         public void WriteInt32(int v)
         {
-            WriteInt16((short)v);
-            WriteInt16((short)(v >> 16));
+            WriteByte((byte)v >> 24);
+            WriteByte((byte)v >> 16);
+            WriteByte((byte)v >> 8);
+            WriteByte((byte)v);
+            // WriteInt16((short)v);
+            // WriteInt16((short)(v >> 16));
         }
         
         public void WriteUInt32(uint v)
@@ -258,8 +262,16 @@ public partial class BinProto
         
         public void WriteInt64(long v)
         {
-            WriteInt32((int)v);
-            WriteInt32((int) (v >> 32));
+            // WriteInt32((int)v);
+            // WriteInt32((int) (v >> 32));
+            WriteByte((byte)v >> 56);
+            WriteByte((byte)v >> 48);
+            WriteByte((byte)v >> 40);
+            WriteByte((byte)v >> 32);
+            WriteByte((byte)v >> 24);
+            WriteByte((byte)v >> 16);
+            WriteByte((byte)v >> 8);
+            WriteByte((byte)
         }
         
         public void WriteUInt64(ulong v)

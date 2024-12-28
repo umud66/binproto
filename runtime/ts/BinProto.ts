@@ -20,14 +20,18 @@ export class BinProtoReader{
         return this.ReadInt16()
     }
     ReadInt32():number{
-        return this.ReadInt16() | (this.ReadInt16() << 16);
+        // return this.ReadInt16() | (this.ReadInt16() << 16);
+        return this.ReadByte() << 24 | this.ReadByte() << 16 | this.ReadByte() << 8 | this.ReadByte();
     }
     ReadUInt32():number{
         return this.ReadInt32() >>> 0;
     }
     ReadInt64():number{
-        let big = (BigInt)(this.ReadUInt32()) | (BigInt) (this.ReadUInt32()) << 32n
-        return Number(big);
+        let value = BigInt(0);
+        for (let i = 0; i < 8; i++) {
+            value = (value << BigInt(8)) | BigInt(this.ReadByte());
+        }
+        return Number(value);
     }
     ReadUInt64():number{
         return this.ReadInt64() >>> 0;
@@ -122,14 +126,20 @@ export class BinProtoWriter{
         // if(val >= UINT16MAX)
         //     val = UINT16MAX;
         val &= 0xFFFF
-        this.WriteByte(val)
-        this.WriteByte(val >>> 8);
+        this.WriteByte(val >> 8);
+        this.WriteByte(val);
+        // this.WriteByte(val)
+        // this.WriteByte(val >>> 8);
     }
 
     WriteInt32(val:number){
         val &= 0xFFFFFFFF
-        this.WriteUInt16(val);
-        this.WriteUInt16(val >>> 16);
+        // this.WriteUInt16(val);
+        // this.WriteUInt16(val >>> 16);
+        this.WriteByte(val >> 24);
+        this.WriteByte(val >> 16);
+        this.WriteByte(val >> 8);
+        this.WriteByte(val);
     }
 
     WriteUInt32(val:number){
@@ -138,8 +148,11 @@ export class BinProtoWriter{
 
     WriteInt64(val:number){
         let v = (BigInt)(val)
-        this.WriteUInt32(Number(v))
-        this.WriteUInt32(Number(v >> 32n))
+        for (let i = 7; i >= 0; i--) {
+            this.WriteByte(Number((v >> BigInt(i * 8)) & BigInt(0xFF)));
+        }
+        // this.WriteUInt32(Number(v))
+        // this.WriteUInt32(Number(v >> 32n))
         // if(val > UINT32MAX){
         //     this.WriteUInt32(UINT32MAX);
         //     this.WriteUInt32(val / UINT32MAX);
