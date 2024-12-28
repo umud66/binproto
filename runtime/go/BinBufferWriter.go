@@ -40,8 +40,12 @@ func (this *ByteBufferWriter) WriteUInt16(v uint16) {
 }
 
 func (this *ByteBufferWriter) WriteInt32(v int) {
-	this.WriteInt16(int16(v))
-	this.WriteInt16(int16(v >> 16))
+	this.WriteUInt8(byte(v >> 24))
+	this.WriteUInt8(byte(v >> 16))
+	this.WriteUInt8(byte(v >> 8))
+	this.WriteUInt8(byte(v))
+	// this.WriteInt16(int16(v))
+	// this.WriteInt16(int16(v >> 16))
 }
 
 func (this *ByteBufferWriter) WriteUInt32(v uint) {
@@ -49,8 +53,16 @@ func (this *ByteBufferWriter) WriteUInt32(v uint) {
 }
 
 func (this *ByteBufferWriter) WriteInt64(v int64) {
-	this.WriteInt32(int(v))
-	this.WriteInt32(int(v >> 32))
+	// this.WriteInt32(int(v))
+	// this.WriteInt32(int(v >> 32))
+	this.WriteUInt8(byte(v >> 56))
+	this.WriteUInt8(byte(v >> 48))
+	this.WriteUInt8(byte(v >> 40))
+	this.WriteUInt8(byte(v >> 32))
+	this.WriteUInt8(byte(v >> 24))
+	this.WriteUInt8(byte(v >> 16))
+	this.WriteUInt8(byte(v >> 8))
+	this.WriteUInt8(byte(v))
 }
 
 func (this *ByteBufferWriter) WriteUInt64(v uint64) {

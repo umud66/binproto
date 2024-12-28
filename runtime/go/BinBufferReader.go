@@ -34,7 +34,7 @@ func (this *ByteBufferReader) ReadInt16() int16 {
 }
 
 func (this *ByteBufferReader) ReadInt32() int {
-	return int(int32(this.ReadInt16()) | int32(this.ReadInt16())<<16)
+	return int(int32(this.ReadUInt8())<<24 | int32(this.ReadUInt8())<<16 | int32(this.ReadUInt8())<<8 | int32(this.ReadUInt8()))
 }
 
 func (this *ByteBufferReader) ReadUInt32() uint {
@@ -46,8 +46,7 @@ func (this *ByteBufferReader) ReadBool() bool {
 }
 
 func (this *ByteBufferReader) ReadInt64() int64 {
-
-	return int64(this.ReadInt32()) | int64(this.ReadInt32())<<32
+	return int64(this.ReadUInt8()<<56 | this.ReadUInt8()<<48 | this.ReadUInt8()<<40 | this.ReadUInt8()<<32 | this.ReadUInt8()<<24 | this.ReadUInt8()<<16 | this.ReadUInt8()<<8 | this.ReadUInt8())
 }
 
 func (this *ByteBufferReader) ReadUInt64() uint64 {
