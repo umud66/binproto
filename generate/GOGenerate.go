@@ -70,6 +70,18 @@ func createGORead(fieldName string, fieldType string) string {
 		return r + "reader.ReadInt16Arr();\n"
 	} else if fieldType == "uint16[]" {
 		return r + "reader.ReadUInt16Arr();\n"
+	} else if fieldType == "bool[][]" {
+		return r + "reader.ReadBoolArrArr()\n"
+	} else if fieldType == "int32[][]" || fieldType == "int[][]" {
+		return r + "reader.ReadInt32ArrArr()\n"
+	} else if fieldType == "uint32[][]" || fieldType == "uint[][]" {
+		return r + "reader.ReadUInt32ArrArr()\n"
+	} else if fieldType == "int64[][]" {
+		return r + "reader.ReadInt64ArrArr()\n"
+	} else if fieldType == "uint64[][]" {
+		return r + "reader.ReadUInt64ArrArr()\n"
+	} else if fieldType == "string[][]" {
+		return r + "reader.ReadStringArrArr()\n"
 	} else if strings.HasSuffix(fieldType, "[]") {
 		baseType := strings.Replace(fieldType, "[]", "", -1)
 		r = fieldName + "ArrSize := reader.ReadInt32()\n\t\t" + r + "make([]" + strings.Title(baseType) + "," + fieldName + "ArrSize);\n"
@@ -123,6 +135,26 @@ func createGOWrite(fieldName string, fieldType string) string {
 		return "writer.WriteStringArr(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "bool[]" {
 		return "writer.WriteBoolArr(data." + strings.Title(fieldName) + ")\n"
+	} else if fieldType == "bool[][]" {
+		return "writer.WriteBoolArrArr(data." + strings.Title(fieldName) + ")\n"
+	} else if fieldType == "int8[][]" {
+		return "writer.WriteInt8ArrArr(data." + strings.Title(fieldName) + ")\n"
+	} else if fieldType == "uint8[][]" {
+		return "writer.WriteUInt8ArrArr(data." + strings.Title(fieldName) + ")\n"
+	} else if fieldType == "int16[][]" {
+		return "writer.WriteInt16ArrArr(data." + strings.Title(fieldName) + ")\n"
+	} else if fieldType == "uint16[][]" {
+		return "writer.WriteUInt16ArrArr(data." + strings.Title(fieldName) + ")\n"
+	} else if fieldType == "int32[][]" || fieldType == "int[][]" {
+		return "writer.WriteIntArrArr(data." + strings.Title(fieldName) + ")\n"
+	} else if fieldType == "uint32[][]" || fieldType == "uint[][]" {
+		return "writer.WriteUIntArrArr(data." + strings.Title(fieldName) + ")\n"
+	} else if fieldType == "int64[][]" {
+		return "writer.WriteInt64ArrArr(data." + strings.Title(fieldName) + ")\n"
+	} else if fieldType == "uint64[][]" {
+		return "writer.WriteUInt64ArrArr(data." + strings.Title(fieldName) + ")\n"
+	} else if fieldType == "string[][][]" {
+		return "writer.WriteStringArrArrArr(data." + strings.Title(fieldName) + ")\n"
 	} else if strings.HasSuffix(fieldType, "[]") {
 		r := fieldName + "ArrSize := len(data." + strings.Title(fieldName) + ")\n"
 		r += "\twriter.WriteInt32(" + fieldName + "ArrSize)\n"
@@ -156,7 +188,13 @@ func GenerateGOFile(codes []core.CodeClass, godb bool) string {
 			name := strings.Split(v.Names[i], "#")
 			sb.WriteString(strings.Title(name[0]))
 			sb.WriteString("\t")
-			if strings.HasSuffix(typename, "[]") {
+			if strings.HasSuffix(typename, "[][]") {
+				if isBaseType(typename) {
+					sb.WriteString("[][]" + strings.Replace(typename, "[][]", "", 1))
+				} else {
+					sb.WriteString("[][]" + strings.Replace(strings.Title(typename), "[][]", "", 1))
+				}
+			} else if strings.HasSuffix(typename, "[]") {
 				if isBaseType(typename) {
 					sb.WriteString("[]" + strings.Replace(typename, "[]", "", 1))
 				} else {

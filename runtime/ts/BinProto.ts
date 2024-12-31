@@ -1,128 +1,192 @@
-const UINT64MAX = Math.pow(2,64) -1;
-const UINT32MAX = Math.pow(2,32) -1;
-const UINT16MAX = Math.pow(2,16) - 1;
-const UINT8MAX = Math.pow(2,8) - 1;
-export class BinProtoReader{
-    constructor(data:Uint8Array){
+const UINT64MAX = Math.pow(2, 64) - 1;
+const UINT32MAX = Math.pow(2, 32) - 1;
+const UINT16MAX = Math.pow(2, 16) - 1;
+const UINT8MAX = Math.pow(2, 8) - 1;
+export class BinProtoReader {
+    constructor(data: Uint8Array) {
         this.data = data.entries()
         this.readPoint = 0;
-        
+
     }
-    data:IterableIterator<[number, number]>;
-    readPoint:number;
-    ReadByte():number {
+    data: IterableIterator<[number, number]>;
+    readPoint: number;
+    ReadByte(): number {
         return this.data.next().value[1];
     }
-    ReadInt16():number{
+    ReadInt16(): number {
         return this.ReadByte() | (this.ReadByte() << 8);
     }
-    ReadUInt16():number{
+    ReadUInt16(): number {
         return this.ReadInt16()
     }
-    ReadInt32():number{
+    ReadInt32(): number {
         // return this.ReadInt16() | (this.ReadInt16() << 16);
         return this.ReadByte() << 24 | this.ReadByte() << 16 | this.ReadByte() << 8 | this.ReadByte();
     }
-    ReadUInt32():number{
+    ReadUInt32(): number {
         return this.ReadInt32() >>> 0;
     }
-    ReadInt64():number{
+    ReadInt64(): number {
         let value = BigInt(0);
         for (let i = 0; i < 8; i++) {
             value = (value << BigInt(8)) | BigInt(this.ReadByte());
         }
         return Number(value);
     }
-    ReadUInt64():number{
+    ReadUInt64(): number {
         return this.ReadInt64() >>> 0;
     }
-    ReadString():string{
+    ReadUInt64ArrayArr(): number[][] {
+        let arr: number[][] = [];
+        let size = this.ReadUInt32()
+        for (let i = 0; i < size; i++) {
+            arr.push(this.ReadInt64Array())
+        }
+        return arr
+    }
+    ReadInt64ArrayArr(): number[][] {
+        let arr: number[][] = [];
+        let size = this.ReadUInt32()
+        for (let i = 0; i < size; i++) {
+            arr.push(this.ReadInt64Array())
+        }
+        return arr
+    }
+    ReadInt32ArrayArr(): number[][] {
+        let arr: number[][] = [];
+        let size = this.ReadUInt32()
+        for (let i = 0; i < size; i++) {
+            arr.push(this.ReadInt32Array())
+        }
+        return arr
+    }
+    ReadUInt32ArrayArr(): number[][] {
+        let arr: number[][] = [];
+        let size = this.ReadUInt32()
+        for (let i = 0; i < size; i++) {
+            arr.push(this.ReadUInt32Array())
+        }
+        return arr
+    }
+    ReadInt16ArrayArr(): number[][] {
+        let arr: number[][] = [];
+        let size = this.ReadUInt32()
+        for (let i = 0; i < size; i++) {
+            arr.push(this.ReadInt16Array())
+        }
+        return arr
+    }
+    ReadUInt16ArrayArr(): number[][] {
+        let arr: number[][] = [];
+        let size = this.ReadUInt32()
+        for (let i = 0; i < size; i++) {
+            arr.push(this.ReadUInt16Array())
+        }
+        return arr
+    }
+    ReadUInt8ArrayArr(): number[][] {
+        let arr: number[][] = [];
+        let size = this.ReadUInt32()
+        for (let i = 0; i < size; i++) {
+            arr.push(this.ReadByteArray())
+        }
+        return arr
+    }
+    ReadStringArrayArr():string[][]{
+        let arr: string[][] = [];
+        let size = this.ReadUInt32()
+        for (let i = 0; i < size; i++) {
+            arr.push(this.ReadStringArray())
+        }
+        return arr
+    }
+    ReadString(): string {
         let arr = this.ReadByteArray();
         return new TextDecoder().decode(new Uint8Array(arr));
     }
-    ReadBool():boolean{
+    ReadBool(): boolean {
         return this.ReadByte() == 1;
     }
-    ReadByteArray():number[]{
+    ReadByteArray(): number[] {
         let size = this.ReadUInt32()
-        let r:number[] = [];
+        let r: number[] = [];
         for (let i = 0; i < size; i++) {
             r.push(this.ReadByte())
         }
         return r;
     }
-    ReadInt16Array():number[]{
+    ReadInt16Array(): number[] {
         let size = this.ReadUInt32()
-        let r:number[] = [];
+        let r: number[] = [];
         for (let i = 0; i < size; i++) {
             r.push(this.ReadInt16())
         }
         return r;
     }
-    ReadUInt16Array():number[]{
+    ReadUInt16Array(): number[] {
         let size = this.ReadUInt32()
-        let r:number[] = [];
+        let r: number[] = [];
         for (let i = 0; i < size; i++) {
             r.push(this.ReadUInt16())
         }
         return r;
     }
-    ReadInt32Array():number[]{
+    ReadInt32Array(): number[] {
         let size = this.ReadUInt32()
-        let r:number[] = [];
+        let r: number[] = [];
         for (let i = 0; i < size; i++) {
             r.push(this.ReadInt32())
         }
         return r;
     }
-    ReadUInt32Array():number[]{
+    ReadUInt32Array(): number[] {
         let size = this.ReadUInt32()
-        let r:number[] = [];
+        let r: number[] = [];
         for (let i = 0; i < size; i++) {
             r.push(this.ReadUInt32())
         }
         return r;
     }
-    ReadInt64Array():number[]{
+    ReadInt64Array(): number[] {
         let size = this.ReadUInt32()
-        let r:number[] = [];
+        let r: number[] = [];
         for (let i = 0; i < size; i++) {
             r.push(this.ReadInt64())
         }
         return r;
     }
-    ReadUInt64Array():number[]{
+    ReadUInt64Array(): number[] {
         let size = this.ReadUInt32()
-        let r:number[] = [];
+        let r: number[] = [];
         for (let i = 0; i < size; i++) {
             r.push(this.ReadUInt64())
         }
         return r;
     }
-    ReadStringArray():string[]{
+    ReadStringArray(): string[] {
         let size = this.ReadUInt32()
-        let r:string[] = [];
+        let r: string[] = [];
         for (let i = 0; i < size; i++) {
             r.push(this.ReadString())
         }
         return r;
     }
 }
-export class BinProtoWriter{
-    data:number[];
-    writePoint:number;
-    constructor(){
+export class BinProtoWriter {
+    data: number[];
+    writePoint: number;
+    constructor() {
         this.data = [];
         this.writePoint = 0;
     }
 
-    WriteByte(val:number){
+    WriteByte(val: number) {
         // if(val >= UINT8MAX)
         //     val = UINT8MAX
         this.data.push(val & 0xFF)
     }
 
-    WriteUInt16(val:number){
+    WriteUInt16(val: number) {
         // if(val >= UINT16MAX)
         //     val = UINT16MAX;
         val &= 0xFFFF
@@ -132,7 +196,7 @@ export class BinProtoWriter{
         // this.WriteByte(val >>> 8);
     }
 
-    WriteInt32(val:number){
+    WriteInt32(val: number) {
         val &= 0xFFFFFFFF
         // this.WriteUInt16(val);
         // this.WriteUInt16(val >>> 16);
@@ -142,11 +206,11 @@ export class BinProtoWriter{
         this.WriteByte(val);
     }
 
-    WriteUInt32(val:number){
+    WriteUInt32(val: number) {
         this.WriteInt32(val)
     }
 
-    WriteInt64(val:number){
+    WriteInt64(val: number) {
         let v = (BigInt)(val)
         for (let i = 7; i >= 0; i--) {
             this.WriteByte(Number((v >> BigInt(i * 8)) & BigInt(0xFF)));
@@ -162,65 +226,104 @@ export class BinProtoWriter{
         // }
     }
 
-    WriteUInt64(val:number){
+    WriteUInt64(val: number) {
         this.WriteInt64(val)
     }
-    WriteString(val:string){
-        if(!val){
+    WriteString(val: string) {
+        if (!val) {
             this.WriteByteArray([]);
             return
         }
         let arr = new TextEncoder().encode(val);
-        this.WriteInt32(arr.length);
+        this.WriteArrayLength(arr.length);
         this.WriteUint8ArrayBytes(arr)
     }
-    WriteBool(val:boolean){
+    WriteBool(val: boolean) {
         this.WriteByte(val ? 1 : 0);
     }
-    WriteByteArray(val:number[]){
-        this.WriteUInt32(val.length)
+    WriteByteArray(val: number[]) {
+        this.WriteArrayLength(val.length)
         for (let i = 0; i < val.length; i++) {
             this.WriteByte(val[i]);
         }
     }
-    WriteInt16Array(val:number[]){
-        this.WriteUInt32(val.length)
-        val.forEach(it=>{
+    WriteInt16Array(val: number[]) {
+        this.WriteArrayLength(val.length)
+        val.forEach(it => {
             this.WriteUInt16(it);
         })
     }
-    WriteInt32Array(val:number[]){
-        this.WriteUInt32(val.length)
-        val.forEach(it=>{
+    WriteInt32Array(val: number[]) {
+        this.WriteArrayLength(val.length)
+        val.forEach(it => {
+            this.WriteInt32(it);
+        })
+    }
+    WriteUInt32Array(val: number[]) {
+        this.WriteArrayLength(val.length)
+        val.forEach(it => {
             this.WriteUInt32(it);
         })
     }
-    WriteInt64Array(val:number[]){
-        this.WriteUInt32(val.length)
-        val.forEach(it=>{
+    WriteInt64Array(val: number[]) {
+        this.WriteArrayLength(val.length)
+        val.forEach(it => {
+            this.WriteInt64(it);
+        })
+    }
+    WriteUInt64Array(val: number[]) {
+        this.WriteArrayLength(val.length)
+        val.forEach(it => {
             this.WriteUInt64(it);
         })
     }
-    WriteStringArray(val:string[]){
-        this.WriteUInt32(val.values.length)
-        val.forEach(it=>{
+    WriteArrayLength(val:number){
+        this.WriteUInt32(val)
+    }
+    WriteStringArray(val: string[]) {
+        this.WriteArrayLength(val.values.length)
+        val.forEach(it => {
             this.WriteString(it);
         })
     }
-    WriteBytes(val:number[]){
+    WriteBytes(val: number[]) {
         val.forEach(it => {
             this.WriteByte(it)
         });
     }
-    WriteUint8ArrayBytes(val:Uint8Array){
+    WriteUint8ArrayBytes(val: Uint8Array) {
         for (let i = 0; i < val.byteLength; i++) {
             this.WriteByte(val[i]);
         }
     }
-    GetBytes():Uint8Array{
+    WriteUInt64ArrayArr(val: number[][]) {
+        this.WriteArrayLength(val.length)
+        val.forEach(it => {
+            this.WriteInt64Array(it);
+        })
+    }
+    WriteInt64ArrayArr(val: number[][]) {
+        this.WriteArrayLength(val.length)
+        val.forEach(it => {
+            this.WriteInt64Array(it);
+        })
+    }
+    WriteInt32ArrayArr(val: number[][]){
+        this.WriteArrayLength(val.length)
+        val.forEach(it => {
+            this.WriteInt32Array(it);
+        })
+    }
+    WriteUInt32ArrayArr(val: number[][]){
+        this.WriteArrayLength(val.length)
+        val.forEach(it => {
+            this.WriteUInt32Array(it);
+        })
+    }
+    GetBytes(): Uint8Array {
         return new Uint8Array(this.data)
     }
-    GetNumberArray():number[]{
+    GetNumberArray(): number[] {
         return this.data
     }
 }

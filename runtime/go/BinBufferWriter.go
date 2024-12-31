@@ -14,17 +14,6 @@ func (this *ByteBufferWriter) check(size int) {
 
 func (this *ByteBufferWriter) WriteUInt8(v byte) {
 	this.check(2)
-	// if this.point > 0 {
-	// 	if this.b[this.point-1] == v {
-	// 		if this.b[this.point] < 255 {
-	// 			this.b[this.point]++
-	// 			return
-	// 		}
-	// 	}
-	// }
-	// if this.point > 0 {
-	// 	this.point++
-	// }
 	this.b[this.point] = v
 	this.point++
 
@@ -44,8 +33,6 @@ func (this *ByteBufferWriter) WriteInt32(v int) {
 	this.WriteUInt8(byte(v >> 16))
 	this.WriteUInt8(byte(v >> 8))
 	this.WriteUInt8(byte(v))
-	// this.WriteInt16(int16(v))
-	// this.WriteInt16(int16(v >> 16))
 }
 
 func (this *ByteBufferWriter) WriteUInt32(v uint) {
@@ -201,6 +188,48 @@ func (this *ByteBufferWriter) WriteBoolArr(v []bool) {
 		for _, v := range v {
 			this.WriteBool(v)
 		}
+	}
+}
+func (this *ByteBufferWriter) WriteIntArrArr(v [][]int) {
+	this.WriteInt32(len(v))
+	for _, v := range v {
+		this.WriteInt32Arr(v)
+	}
+}
+func (this *ByteBufferWriter) WriteUIntArrArr(v [][]uint) {
+	this.WriteInt32(len(v))
+	for _, v := range v {
+		this.WriteUInt32Arr(v)
+	}
+}
+func (this *ByteBufferWriter) WriteByteArrArr(v [][]byte) {
+	this.WriteInt32(len(v))
+	for _, v := range v {
+		this.WriteUInt8Arr(v)
+	}
+}
+func (this *ByteBufferWriter) WriteStringArrArr(v [][]string) {
+	this.WriteInt32(len(v))
+	for _, v := range v {
+		this.WriteStringArr(v)
+	}
+}
+func (this *ByteBufferWriter) WriteBoolArrArr(v [][]bool) {
+	this.WriteInt32(len(v))
+	for _, v := range v {
+		this.WriteBoolArr(v)
+	}
+}
+func (this *ByteBufferWriter) WriteInt64ArrArr(v [][]int64) {
+	this.WriteInt32(len(v))
+	for _, v := range v {
+		this.WriteInt64Arr(v)
+	}
+}
+func (this *ByteBufferWriter) WriteUInt64ArrArr(v [][]uint64) {
+	this.WriteInt32(len(v))
+	for _, v := range v {
+		this.WriteUInt64Arr(v)
 	}
 }
 

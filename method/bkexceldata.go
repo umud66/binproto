@@ -21,6 +21,22 @@ type bkExcelDataVal struct {
 }
 
 func (this *bkExcelDataVal) writeData(typeName string, value string, tmpData *buffertool.ByteBufferWriter) {
+	if strings.HasSuffix(typeName, "[]") {
+		value = strings.TrimSuffix(value, "]")
+		value = strings.TrimPrefix(value, "[")
+		arr := strings.Split(value, "],[")
+		tmpData.WriteUInt32(uint(len(arr)))
+		typeName = strings.Replace(typeName, "[]", "", -1)
+		for _, v := range arr {
+			v1 := strings.Replace(strings.Replace(v, "[", "", -1), "]", "", -1)
+			valueArr := strings.Split(v1, ",")
+			tmpData.WriteUInt32(uint(len(valueArr)))
+			for _, v2 := range valueArr {
+				this.writeData(typeName, v2, tmpData)
+			}
+		}
+		return
+	}
 	if typeName == "string" {
 		tmpData.WriteString(value)
 	} else if typeName == "bool" || typeName == "boolean" {
@@ -56,9 +72,15 @@ func (this *bkExcelDataVal) doDataTables(data []core.DataTable) {
 				data := row.Data[i]
 
 				typeName := table.ColsType[i]
-				isArray := strings.HasSuffix(typeName, "[]")
+				isArray := false
+				if strings.HasSuffix(typeName, "[][]") {
+					typeName = strings.Replace(typeName, "[]", "", 1)
+				} else if strings.HasSuffix(typeName, "[]") {
+					isArray = true
+				}
+
 				if isArray {
-					typeName = strings.Replace(typeName, "[]", "", -1)
+					typeName = strings.Replace(typeName, "[]", "", 1)
 				}
 				v := ""
 				if data != nil {

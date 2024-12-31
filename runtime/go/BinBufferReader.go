@@ -26,7 +26,7 @@ func (this *ByteBufferReader) ReadUInt8() byte {
 }
 
 func (this *ByteBufferReader) ReadUInt16() uint16 {
-	return uint16(this.ReadUInt8()) | uint16(this.ReadUInt8())<<8
+	return uint16(this.ReadInt16())
 }
 
 func (this *ByteBufferReader) ReadInt16() int16 {
@@ -34,6 +34,7 @@ func (this *ByteBufferReader) ReadInt16() int16 {
 }
 
 func (this *ByteBufferReader) ReadInt32() int {
+	// return int(int32(this.ReadInt16()) | int32(this.ReadInt16())<<16)
 	return int(int32(this.ReadUInt8())<<24 | int32(this.ReadUInt8())<<16 | int32(this.ReadUInt8())<<8 | int32(this.ReadUInt8()))
 }
 
@@ -46,7 +47,8 @@ func (this *ByteBufferReader) ReadBool() bool {
 }
 
 func (this *ByteBufferReader) ReadInt64() int64 {
-	return int64(this.ReadUInt8()<<56 | this.ReadUInt8()<<48 | this.ReadUInt8()<<40 | this.ReadUInt8()<<32 | this.ReadUInt8()<<24 | this.ReadUInt8()<<16 | this.ReadUInt8()<<8 | this.ReadUInt8())
+	// return int64(this.ReadInt32()) | int64(this.ReadInt32())<<32
+	return int64(this.ReadUInt8())<<56 | int64(this.ReadUInt8())<<48 | int64(this.ReadUInt8())<<40 | int64(this.ReadUInt8())<<32 | int64(this.ReadUInt8())<<24 | int64(this.ReadUInt8())<<16 | int64(this.ReadUInt8())<<8 | int64(this.ReadUInt8())
 }
 
 func (this *ByteBufferReader) ReadUInt64() uint64 {
@@ -121,6 +123,54 @@ func (this *ByteBufferReader) ReadUInt64Arr() []uint64 {
 	r := make([]uint64, len)
 	for i := 0; i < len; i++ {
 		r[i] = this.ReadUInt64()
+	}
+	return r
+}
+func (this *ByteBufferReader) ReadUInt64ArrArr() [][]uint64 {
+	len := this.ReadInt32()
+	r := make([][]uint64, len)
+	for i := 0; i < len; i++ {
+		r[i] = this.ReadUInt64Arr()
+	}
+	return r
+}
+func (this *ByteBufferReader) ReadInt32ArrArr() [][]int {
+	len := this.ReadInt32()
+	r := make([][]int, len)
+	for i := 0; i < len; i++ {
+		r[i] = this.ReadInt32Arr()
+	}
+	return r
+}
+func (this *ByteBufferReader) ReadUInt32ArrArr() [][]uint {
+	len := this.ReadInt32()
+	r := make([][]uint, len)
+	for i := 0; i < len; i++ {
+		r[i] = this.ReadUInt32Arr()
+	}
+	return r
+}
+func (this *ByteBufferReader) ReadUInt8ArrArr() [][]byte {
+	len := this.ReadInt32()
+	r := make([][]byte, len)
+	for i := 0; i < len; i++ {
+		r[i] = this.ReadUInt8Arr()
+	}
+	return r
+}
+func (this *ByteBufferReader) ReadStringArrArr() [][]string {
+	len := this.ReadInt32()
+	r := make([][]string, len)
+	for i := 0; i < len; i++ {
+		r[i] = this.ReadStringArr()
+	}
+	return r
+}
+func (this *ByteBufferReader) ReadBoolArrArr() [][]bool {
+	len := this.ReadInt32()
+	r := make([][]bool, len)
+	for i := 0; i < len; i++ {
+		r[i] = this.ReadBoolArr()
 	}
 	return r
 }
