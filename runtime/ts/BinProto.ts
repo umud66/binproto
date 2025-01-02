@@ -1,9 +1,9 @@
-const UINT64MAX = Math.pow(2, 64) - 1;
-const UINT32MAX = Math.pow(2, 32) - 1;
-const UINT16MAX = Math.pow(2, 16) - 1;
-const UINT8MAX = Math.pow(2, 8) - 1;
-export class BinProtoReader {
-    constructor(data: Uint8Array) {
+const UINT64MAX = Math.pow(2,64) -1;
+const UINT32MAX = Math.pow(2,32) -1;
+const UINT16MAX = Math.pow(2,16) - 1;
+const UINT8MAX = Math.pow(2,8) - 1;
+export class BinProtoReader{
+    constructor(data:Uint8Array | number[]){
         this.data = data.entries()
         this.readPoint = 0;
 
@@ -171,6 +171,14 @@ export class BinProtoReader {
         }
         return r;
     }
+    ReadDouble():number{
+        let numArr:number[] = [];
+        for (let i = 0; i < 8; i++) {
+            numArr.push(this.ReadByte());
+        }
+        let buf = new Uint8Array(numArr)
+        return new DataView(buf.buffer).getFloat64(0,false)
+    }
 }
 export class BinProtoWriter {
     data: number[];
@@ -320,6 +328,30 @@ export class BinProtoWriter {
             this.WriteUInt32Array(it);
         })
     }
+    WriteDouble(val:number){
+        // 创建一个 8 字节的 ArrayBuffer 来存储 float64 值
+        const buffer = new ArrayBuffer(8);
+        const view = new DataView(buffer);
+        // 将 float64 值存储到 DataView 中，使用大端字节序（false）
+        view.setFloat64(0, val, false);
+        // 返回对应的 Uint8Array 字节数组
+        let r = new Uint8Array(buffer);
+        for (let i = 0; i < 8; i++) {
+            this.WriteByte(r[i])
+        }
+    }
+    WriteDoubleArray(val:number[]){
+        this.WriteArrayLength(val.length)
+        val.forEach(it => {
+            this.WriteDouble(it);
+        })
+    }
+    WriteDoubleArrayArr(val:number[][]){
+        this.WriteArrayLength(val.length)
+        val.forEach(it => {
+            this.WriteDoubleArray(it);
+        })
+    }
     GetBytes(): Uint8Array {
         return new Uint8Array(this.data)
     }
@@ -327,46 +359,3 @@ export class BinProtoWriter {
         return this.data
     }
 }
-// let writer = new BinProtoWriter();
-// console.log(229921394282)
-// writer.WriteInt64(229921394282)
-// writer.WriteUInt16(65533)
-// writer.WriteString("123")
-// console.log(writer.GetBytes())
-
-// let reader = new BinProtoReader(writer.GetBytes());
-// console.log(reader)
-// console.log(reader.ReadInt64())
-// console.log(reader.ReadUInt16())
-// console.log(reader.ReadUInt16())
-// console.log(reader.ReadString())
-
-// class Test{
-//     buffer:number[];
-//     constructor(){
-//         this.buffer = [];
-//     }
-//     WriteByte(val:number) {
-
-//         if(val > 255)
-//             val = 255;
-//         this.buffer.push(val)    
-//     }
-// }
-
-// function testInt(val:number){
-//     let buffer:any = [];
-//     buffer[0] = val & 255;
-//     buffer[1] = val>>=8 & 255;
-//     buffer[2] = val>>=8 & 255;
-//     buffer[3] = val>>=8 & 255;
-//     console.log(buffer)
-//     let t = buffer[0]
-//     t |= buffer[1] << 8
-//     t |= buffer[2] << 16
-//     t |= buffer[3] << 24
-//     console.log(t)
-// }
-// // testInt(65536)
-// console.log(UINT8MAX)
-// console.log(256 & 256)

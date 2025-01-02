@@ -23,7 +23,16 @@ func isBaseType(t string) bool {
 	if strings.HasPrefix(t, "string") {
 		return true
 	}
+	if strings.HasPrefix(t, "double") {
+		return true
+	}
 	return false
+}
+func convertType(t string) string {
+	if strings.HasPrefix(t, "double") {
+		return "float64"
+	}
+	return t
 }
 
 func createGORead(fieldName string, fieldType string) string {
@@ -82,6 +91,12 @@ func createGORead(fieldName string, fieldType string) string {
 		return r + "reader.ReadUInt64ArrArr()\n"
 	} else if fieldType == "string[][]" {
 		return r + "reader.ReadStringArrArr()\n"
+	} else if fieldType == "double" {
+		return r + "reader.ReadDouble()\n"
+	} else if fieldType == "double[]" {
+		return r + "reader.ReadDoubleArr()\n"
+	} else if fieldType == "double[][]" {
+		return r + "reader.ReadDoubleArrArr()\n"
 	} else if strings.HasSuffix(fieldType, "[]") {
 		baseType := strings.Replace(fieldType, "[]", "", -1)
 		r = fieldName + "ArrSize := reader.ReadInt32()\n\t\t" + r + "make([]" + strings.Title(baseType) + "," + fieldName + "ArrSize);\n"
@@ -155,6 +170,12 @@ func createGOWrite(fieldName string, fieldType string) string {
 		return "writer.WriteUInt64ArrArr(data." + strings.Title(fieldName) + ")\n"
 	} else if fieldType == "string[][][]" {
 		return "writer.WriteStringArrArrArr(data." + strings.Title(fieldName) + ")\n"
+	} else if fieldType == "double" {
+		return "writer.WriteDouble(data." + strings.Title(fieldName) + ")\n"
+	} else if fieldType == "double[]" {
+		return "writer.WriteDoubleArr(data." + strings.Title(fieldName) + ")\n"
+	} else if fieldType == "double[][]" {
+		return "writer.WriteDoubleArrArr(data." + strings.Title(fieldName) + ")\n"
 	} else if strings.HasSuffix(fieldType, "[]") {
 		r := fieldName + "ArrSize := len(data." + strings.Title(fieldName) + ")\n"
 		r += "\twriter.WriteInt32(" + fieldName + "ArrSize)\n"
@@ -189,20 +210,20 @@ func GenerateGOFile(codes []core.CodeClass, godb bool) string {
 			sb.WriteString(strings.Title(name[0]))
 			sb.WriteString("\t")
 			if strings.HasSuffix(typename, "[][]") {
-				if isBaseType(typename) {
+				if isBaseType(convertType(typename)) {
 					sb.WriteString("[][]" + strings.Replace(typename, "[][]", "", 1))
 				} else {
 					sb.WriteString("[][]" + strings.Replace(strings.Title(typename), "[][]", "", 1))
 				}
 			} else if strings.HasSuffix(typename, "[]") {
-				if isBaseType(typename) {
+				if isBaseType(convertType(typename)) {
 					sb.WriteString("[]" + strings.Replace(typename, "[]", "", 1))
 				} else {
 					sb.WriteString("[]" + strings.Replace(strings.Title(typename), "[]", "", 1))
 				}
 			} else {
 				if isBaseType(typename) {
-					sb.WriteString(typename)
+					sb.WriteString(convertType(typename))
 				} else {
 					sb.WriteString(strings.Title(typename))
 				}

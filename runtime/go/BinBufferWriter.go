@@ -1,5 +1,7 @@
 package buffertool
 
+import "unsafe"
+
 type ByteBufferWriter struct {
 	b      []byte
 	point  int
@@ -230,6 +232,16 @@ func (this *ByteBufferWriter) WriteUInt64ArrArr(v [][]uint64) {
 	this.WriteInt32(len(v))
 	for _, v := range v {
 		this.WriteUInt64Arr(v)
+	}
+}
+func (this *ByteBufferWriter) WriteDouble(v float64) {
+	v1 := *(*uint64)(unsafe.Pointer(&v))
+	this.WriteUInt64(v1)
+}
+func (this *ByteBufferWriter) WriteDoubleArr(v []float64) {
+	this.WriteInt32(len(v))
+	for _, v := range v {
+		this.WriteDouble(v)
 	}
 }
 

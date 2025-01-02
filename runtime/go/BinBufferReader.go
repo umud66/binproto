@@ -1,5 +1,9 @@
 package buffertool
 
+import (
+	"unsafe"
+)
+
 type ByteBufferReader struct {
 	B      []byte
 	point  int
@@ -180,6 +184,19 @@ func (this *ByteBufferReader) ReadBoolArr() []bool {
 	r := make([]bool, len)
 	for i := 0; i < len; i++ {
 		r[i] = this.ReadBool()
+	}
+	return r
+}
+func (this *ByteBufferReader) ReadDouble() float64 {
+	v := this.ReadUInt64()
+	return *(*float64)(unsafe.Pointer(&v))
+}
+
+func (this *ByteBufferReader) ReadDoubleArr() []float64 {
+	len := this.ReadInt32()
+	r := make([]float64, len)
+	for i := 0; i < len; i++ {
+		r[i] = this.ReadDouble()
 	}
 	return r
 }

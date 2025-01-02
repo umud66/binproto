@@ -98,6 +98,12 @@ func createTSRead(fieldName string, fieldType string) string {
 		return r + "__r__.ReadInt32ArrayArr();\n"
 	} else if fieldType == "uint[][]" {
 		return r + "__r__.ReadUInt32ArrayArr();\n"
+	} else if fieldType == "double" {
+		return r + "__r__.ReadDouble();\n"
+	} else if fieldType == "double[]" {
+		return r + "__r__.ReadDoubleArray();\n"
+	} else if fieldType == "double[][]" {
+		return r + "__r__.ReadDoubleArrayArr();\n"
 	} else if strings.HasSuffix(fieldType, "[]") {
 		baseType := strings.Replace(fieldType, "[]", "", -1)
 		r = "let " + fieldName + "ArrSize = __r__.ReadInt32();\n\t\t" + r + "[];\n"
@@ -173,6 +179,12 @@ func createTSWrite(fieldName string, fieldType string) string {
 		return r + "__w__.WriteUInt64ArrayArr(" + fieldName + ");\n"
 	} else if fieldType == "int64[][]" {
 		return r + "__w__.WriteInt64ArrayArr(" + fieldName + ");\n"
+	} else if fieldType == "double" {
+		return r + "__w__.WriteDouble(" + fieldName + ");\n"
+	} else if fieldType == "double[]" {
+		return r + "__w__.WriteDoubleArray(" + fieldName + ");\n"
+	} else if fieldType == "double[][]" {
+		return r + "__w__.WriteDoubleArrayArr(" + fieldName + ");\n"
 	} else if strings.HasSuffix(fieldType, "[]") {
 		r = "__w__.WriteInt32(" + fieldName + ".length);\n"
 		r += "\t\tfor(let i = 0;i < " + fieldName + ".length;i++){\n"
@@ -214,6 +226,8 @@ func convTSType(typename string) string {
 		typename = "number"
 	} else if typename == "bool" {
 		typename = "boolean"
+	} else if typename == "double" {
+		typename = "number"
 	}
 	// if isArr {
 	// 	return typename + end

@@ -41,6 +41,9 @@ func (this *bkExcelDataVal) writeData(typeName string, value string, tmpData *bu
 		tmpData.WriteString(value)
 	} else if typeName == "bool" || typeName == "boolean" {
 		tmpData.WriteBool(value == "" || value == "false")
+	} else if typeName == "double" {
+		f, _ := strconv.ParseFloat(value, 64)
+		tmpData.WriteDouble(float64(f))
 	} else {
 		var v uint64 = 0
 		v, _ = strconv.ParseUint(value, 10, 64)
