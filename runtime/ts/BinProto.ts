@@ -179,6 +179,14 @@ export class BinProtoReader{
         let buf = new Uint8Array(numArr)
         return new DataView(buf.buffer).getFloat64(0,false)
     }
+    ReadDoubleArray():number[]{
+        let size = this.ReadUInt32()
+        let r: number[] = [];
+        for (let i = 0; i < size; i++) {
+            r.push(this.ReadDouble())
+        }
+        return r;
+    }
 }
 export class BinProtoWriter {
     data: number[];

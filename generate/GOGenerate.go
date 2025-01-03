@@ -30,7 +30,7 @@ func isBaseType(t string) bool {
 }
 func convertType(t string) string {
 	if strings.HasPrefix(t, "double") {
-		return "float64"
+		return strings.Replace(t, "double", "float64", 1)
 	}
 	return t
 }
@@ -186,7 +186,7 @@ func createGOWrite(fieldName string, fieldType string) string {
 	return "writer.WriteBytes(data." + strings.Title(fieldName) + ".Serialize())\n"
 }
 func GenerateGOFile(codes []core.CodeClass, godb bool) string {
-	sb := &strings.Builder{}
+	sb := &strings.Builder{} //存放生成的代码  优先写入结构 ,最后写入读写
 	if !godb {
 		// sb.WriteString("type BinBase interface {\n\tSerialize() []byte\n\tDeSerializeByByte(v []byte)\n\tDeSerialize(reader *ByteBufferReader)\n}\n")
 	}
@@ -195,11 +195,11 @@ func GenerateGOFile(codes []core.CodeClass, godb bool) string {
 		v.Name = strings.Title(v.Name)
 		sb.WriteString("type " + v.Name + " struct{")
 		sb.WriteString("\n")
-		tableFuncStr := &strings.Builder{}
-		writeFuncStr := &strings.Builder{}
+		tableFuncStr := &strings.Builder{} //go数据库写入xorm TableName
+		writeFuncStr := &strings.Builder{} //存放写入代码
 		writeFuncStr.WriteString("func (data *" + v.Name + ") Serialize()[]byte{\n")
 		writeFuncStr.WriteString("\twriter:= &ByteBufferWriter{}\n")
-		readfuncStr := &strings.Builder{}
+		readfuncStr := &strings.Builder{} //存放读取代码
 		readfuncStr.WriteString("func (data *" + v.Name + ") DeSerializeByByte(v []byte) {\n")
 		readfuncStr.WriteString("\t data.DeSerialize(&ByteBufferReader{B:v,})")
 		readfuncStr.WriteString("\n}\n")
@@ -210,14 +210,14 @@ func GenerateGOFile(codes []core.CodeClass, godb bool) string {
 			sb.WriteString(strings.Title(name[0]))
 			sb.WriteString("\t")
 			if strings.HasSuffix(typename, "[][]") {
-				if isBaseType(convertType(typename)) {
-					sb.WriteString("[][]" + strings.Replace(typename, "[][]", "", 1))
+				if isBaseType(typename) {
+					sb.WriteString("[][]" + strings.Replace(convertType(typename), "[][]", "", 1))
 				} else {
 					sb.WriteString("[][]" + strings.Replace(strings.Title(typename), "[][]", "", 1))
 				}
 			} else if strings.HasSuffix(typename, "[]") {
-				if isBaseType(convertType(typename)) {
-					sb.WriteString("[]" + strings.Replace(typename, "[]", "", 1))
+				if isBaseType(typename) {
+					sb.WriteString("[]" + strings.Replace(convertType(typename), "[]", "", 1))
 				} else {
 					sb.WriteString("[]" + strings.Replace(strings.Title(typename), "[]", "", 1))
 				}
